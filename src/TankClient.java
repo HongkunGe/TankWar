@@ -68,7 +68,12 @@ class ClientFrame extends Frame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			tank1.keyControl(e);
+			tank1.keyPressed(e);
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			tank1.keyReleased(e);
 		}
 	}
 	

@@ -4,8 +4,8 @@ import java.awt.event.KeyEvent;
 
 public class Missle extends ObjectInTankWar{
 	
-	private static final int MISSLE_WIDTH = 6;
-	private static final int MISSLE_HEIGHT = 6;
+	public static final int MISSLE_WIDTH = 6;
+	public static final int MISSLE_HEIGHT = 6;
 	/**
 	 * @param x
 	 * @param y
