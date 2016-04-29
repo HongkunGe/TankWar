@@ -1,6 +1,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Iterator;
 
 
 public class TankClient {
@@ -15,10 +16,10 @@ public class TankClient {
 }
 
 class ClientFrame extends Frame {
-	private final int GAME_WIDTH = 800;
-	private final int GAME_HEIGHT = 600;
-	private final int GAME_X_LOC = 400;
-	private final int GAME_Y_LOC = 300;
+	private static final int GAME_WIDTH = 800;
+	private static final int GAME_HEIGHT = 600;
+	private static final int GAME_X_LOC = 400;
+	private static final int GAME_Y_LOC = 300;
 	
 	private final int INTERVAL = 30; // ms
 	
@@ -41,7 +42,11 @@ class ClientFrame extends Frame {
 
 	@Override
 	public void paint(Graphics g) {
-		tank1.drawTank(g);
+		tank1.draw(g);
+		for(Iterator<Missle> it = tank1.barrel.iterator(); it.hasNext();) {
+			Missle firedMissle = it.next();
+			firedMissle.draw(g);
+		}
 	}
 	
 	private class RepaintThread implements Runnable {
