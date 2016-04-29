@@ -7,7 +7,7 @@ public class TankClient {
 
 	public static void main(String[] args) {
 		new ClientFrame();
-
+		
 	}
 	
 
@@ -19,14 +19,12 @@ class ClientFrame extends Frame {
 	private final int GAME_HEIGHT = 600;
 	private final int GAME_X_LOC = 400;
 	private final int GAME_Y_LOC = 300;
-	private final int STEP = 5;
+	
 	private final int INTERVAL = 30; // ms
 	
-	int x = 50, y = 50;
-	int width = 30, height = 30;
+	Tank tank1 = new Tank(50, 50, 30, 30, true, Color.RED);
 	
 	Image offScreenImage = null;
-	int xDir = STEP, yDir = STEP;
 	
 	public ClientFrame() {
 		super("TankClient");
@@ -38,22 +36,12 @@ class ClientFrame extends Frame {
 		this.setResizable(false);
 		this.setBackground(Color.gray);
 		
-		new Thread(new RepaintThread()).start();;
+		new Thread(new RepaintThread()).start();
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		
-		// Used to restore the front-color
-		Color c = g.getColor();
-		g.setColor(Color.RED);
-		
-		// Draw the tank
-		g.fillOval(x, y, width, height);
-		g.setColor(c);
-		
-		x += xDir;
-		y += yDir;
+		tank1.drawTank(g);
 	}
 	
 	private class RepaintThread implements Runnable {
@@ -75,22 +63,8 @@ class ClientFrame extends Frame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			int direction = e.getKeyCode();
-			if(direction == KeyEvent.VK_UP) {
-				xDir = 0;
-				yDir = -STEP;
-			} else if(direction == KeyEvent.VK_DOWN) {
-				xDir = 0;
-				yDir = STEP;
-			} else if(direction == KeyEvent.VK_LEFT) {
-				xDir = -STEP;
-				yDir = 0;
-			} else if(direction == KeyEvent.VK_RIGHT) {
-				xDir = STEP;
-				yDir = 0;
-			}
+			tank1.keyControl(e);
 		}
-		
 	}
 	
 	class WindowMonitor extends WindowAdapter {
