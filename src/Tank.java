@@ -48,6 +48,7 @@ public class Tank extends ObjectInTankWar{
 		// Draw the barrel
 		int xStart = x + TANK_WIDTH / 2, yStart = y + TANK_HEIGHT / 2;
 		g.setColor(Color.BLACK);
+//		g.drawString("Missle Count: " + barrel.size(), 10, 40);
 		g.drawLine(xStart, yStart, xStart + xBarrelDirection, yStart + yBarrelDirection);
 		g.setColor(cOriginal);
 		
@@ -58,6 +59,20 @@ public class Tank extends ObjectInTankWar{
 		if(y < 20) y = 20;
 		if(x > ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH;
 		if(y > ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT;
+		
+		for(Iterator<Missle> it = barrel.iterator(); it.hasNext();) {
+			Missle firedMissle = it.next();
+			firedMissle.draw(g);
+			if(clientFrame.isOutOfBound(firedMissle.x, firedMissle.y)) {
+				it.remove();
+				continue;
+			}
+			
+			// hit a tank
+			if(firedMissle.hitTank(clientFrame.tank2) && this.role) {
+				this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
+			}
+		}
 	}
 	
 	// Randomly setting xDir, yDir. firedMissle with random:

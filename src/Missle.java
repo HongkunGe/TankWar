@@ -32,4 +32,11 @@ public class Missle extends ObjectInTankWar{
 		x += xDir;
 		y += yDir;
 	}
+	
+
+	public boolean hitTank(Tank tank) {
+		int mx = x + MISSLE_WIDTH / 2, my = y + MISSLE_HEIGHT / 2, mr = MISSLE_WIDTH / 2;
+		int tx = tank.x + Tank.TANK_WIDTH / 2, ty = tank.y + Tank.TANK_HEIGHT / 2, tr = Tank.TANK_WIDTH / 2;
+		return TankMath.isCircleCut(mx, my, mr, tx, ty, tr);
+	}
 }

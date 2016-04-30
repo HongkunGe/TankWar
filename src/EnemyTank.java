@@ -2,7 +2,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class EnemyTank extends Tank{
-
+	
+	private final int STEPS_TOTAL = 20;
+	private int stepCount = 0;
 	public EnemyTank(int x, int y, int width, int height, Color c, ClientFrame clientFrame) {
 		super(x, y, width, height, false, c, clientFrame);
 	}
@@ -11,9 +13,6 @@ public class EnemyTank extends Tank{
 		Missle firedMissle = null;
 		int tankDirIndex = generateRandom(0, 4);
 		int missleDirIndex = generateRandom(0, 8);
-//		if(Tank.tankDir.get(tankDirIndex) == null) {
-//			System.out.println("NULL");
-//		}
 		
 		if(tankDirIndex < 4) {
 			xDir = Tank.tankDir.get(tankDirIndex).x;
@@ -37,7 +36,11 @@ public class EnemyTank extends Tank{
 	}
 	
 	public void draw(Graphics g) {
-		getDir();
-		super.draw(g);		
+		if(stepCount % STEPS_TOTAL == 0) {
+			getDir();
+			stepCount = 0;
+		}
+		stepCount ++;
+		super.draw(g);
 	}
 }

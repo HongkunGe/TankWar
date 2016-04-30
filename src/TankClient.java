@@ -1,7 +1,6 @@
-
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator;
 
 
 public class TankClient {
@@ -26,6 +25,8 @@ class ClientFrame extends Frame {
 	FriendTank tank1 = new FriendTank(50, 50, 30, 30, true, Color.RED, this);
 	EnemyTank tank2 = new EnemyTank(50, 50, 30, 30, Color.BLUE, this);
 	
+	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
+	
 	Image offScreenImage = null;
 	
 	public ClientFrame() {
@@ -45,10 +46,16 @@ class ClientFrame extends Frame {
 	public void paint(Graphics g) {		
 		tank1.draw(g);
 		tank2.draw(g);
-		for(Iterator<Missle> it = tank1.barrel.iterator(); it.hasNext();) {
-			Missle firedMissle = it.next();
-			firedMissle.draw(g);
-			if(isOutOfBound(firedMissle.x, firedMissle.y)) {
+		
+		Color cOriginal = g.getColor();
+		g.setColor(Color.BLACK);
+		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
+		g.setColor(cOriginal);
+		
+		for(Iterator<Explosion> it = explosionEvents.iterator(); it.hasNext();) {
+			Explosion xps = it.next();
+			xps.draw(g);
+			if(!xps.isLive()) {
 				it.remove();
 			}
 		}
