@@ -22,7 +22,6 @@ public class Explosion {
 	
 	public void draw(Graphics g) {
 		if(stepsCount == diameter.length) {
-//			this.clientFrame.explosionEvents.remove(this);
 			isLive = false;
 			return;
 		}

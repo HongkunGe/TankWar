@@ -9,9 +9,6 @@ public class TankClient {
 		new ClientFrame();
 		
 	}
-	
-
-
 }
 
 class ClientFrame extends Frame {
@@ -22,15 +19,19 @@ class ClientFrame extends Frame {
 	
 	private final int INTERVAL = 30; // ms
 	
-	FriendTank tank1 = new FriendTank(50, 50, 30, 30, true, Color.RED, this);
-	EnemyTank tank2 = new EnemyTank(50, 50, 30, 30, Color.BLUE, this);
-	
+	FriendTank tank1 = new FriendTank(500, 500, 30, 30, true, Color.RED, this);
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
+	
+	public ArrayList<EnemyTank> enemyTanks = new ArrayList<EnemyTank>();
 	
 	Image offScreenImage = null;
 	
 	public ClientFrame() {
 		super("TankClient");
+		for(int i = 6; i < 10; i++){
+			enemyTanks.add(new EnemyTank(50, i * 10 + 30, 30, 30, Color.BLUE, this));
+		}		
+		
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
 		this.setLocation(GAME_X_LOC, GAME_Y_LOC);
 		this.setVisible(true);
@@ -43,13 +44,23 @@ class ClientFrame extends Frame {
 	}
 
 	@Override
-	public void paint(Graphics g) {		
-		tank1.draw(g);
-		tank2.draw(g);
+	public void paint(Graphics g) {
+		if(tank1.isLive()) {
+			tank1.draw(g);
+		}
+		
+		for(Iterator<EnemyTank> itEt = enemyTanks.iterator(); itEt.hasNext();) {
+			EnemyTank et = itEt.next();
+			et.draw(g);
+			if(!et.isLive()) {
+				itEt.remove();
+			}
+		}
 		
 		Color cOriginal = g.getColor();
 		g.setColor(Color.BLACK);
 		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
+		g.drawString("Tanks Count: " + enemyTanks.size(), 10, 60);
 		g.setColor(cOriginal);
 		
 		for(Iterator<Explosion> it = explosionEvents.iterator(); it.hasNext();) {

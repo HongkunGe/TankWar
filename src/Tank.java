@@ -9,7 +9,7 @@ public class Tank extends ObjectInTankWar{
 	public static final int TANK_HEIGHT = 30;
 	public static final HashMap<Integer, Direction> tankDir = createTankDirMap();
 	public static final HashMap<Integer, Direction> missleDir = createMissleDirMap();
-	boolean role;
+	boolean role, isLive;
 	int xBarrelDirection, yBarrelDirection;
 	ClientFrame clientFrame = null;
 	ArrayList<Missle> barrel = new ArrayList<Missle>();
@@ -48,7 +48,7 @@ public class Tank extends ObjectInTankWar{
 		// Draw the barrel
 		int xStart = x + TANK_WIDTH / 2, yStart = y + TANK_HEIGHT / 2;
 		g.setColor(Color.BLACK);
-//		g.drawString("Missle Count: " + barrel.size(), 10, 40);
+//		g.drawString("Missle Count: " + barrel.size(), 10, 70);
 		g.drawLine(xStart, yStart, xStart + xBarrelDirection, yStart + yBarrelDirection);
 		g.setColor(cOriginal);
 		
@@ -68,17 +68,26 @@ public class Tank extends ObjectInTankWar{
 				continue;
 			}
 			
-			// hit a tank
-			if(firedMissle.hitTank(clientFrame.tank2) && this.role) {
-				this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
+			// hit tanks	
+			if(this.role) {
+				for(Iterator<EnemyTank> itEt = clientFrame.enemyTanks.iterator(); itEt.hasNext();) {
+					EnemyTank et = itEt.next();
+					if(firedMissle.hitTank(et) && et.isLive()) {
+						et.isHitByMissle(firedMissle);
+					}
+				}
+			} else {
+				if(firedMissle.hitTank(clientFrame.tank1) && clientFrame.tank1.isLive()) {
+					clientFrame.tank1.isHitByMissle(firedMissle);
+				}
 			}
 		}
 	}
 	
-	// Randomly setting xDir, yDir. firedMissle with random:
-	// firedMissle = fire(-MISSLE_STEP, MISSLE_STEP); 
-	// xBarrelDirection yBarrelDirection
-	
+	public void isHitByMissle(Missle firedMissle) {
+		this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
+		this.isLive = false;
+	}
 	public Missle fire(int xMissleDir, int yMissleDir) {
 		int xMissle = x + FriendTank.TANK_WIDTH / 2 - Missle.MISSLE_WIDTH / 2;
 		int yMissle = y + FriendTank.TANK_HEIGHT / 2 - Missle.MISSLE_HEIGHT / 2;
@@ -98,6 +107,8 @@ public class Tank extends ObjectInTankWar{
 	 */
 	public Tank(int x, int y, int width, int height, boolean role, Color c) {
 		super(x, y, width, height ,0 ,0 ,c);
+		
+		this.isLive = true;
 		this.role = role;
 		this.xBarrelDirection = 0;
 		this.yBarrelDirection = FriendTank.TANK_HEIGHT / 2;
@@ -115,6 +126,13 @@ public class Tank extends ObjectInTankWar{
 	public Tank(int x, int y, int width, int height, boolean role, Color c, ClientFrame clientFrame) {
 		this(x, y, width, height, role, c);
 		this.clientFrame = clientFrame;
+	}
+
+	/**
+	 * @return the isLive
+	 */
+	public boolean isLive() {
+		return isLive;
 	}
 }
 
