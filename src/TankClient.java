@@ -16,14 +16,15 @@ public class TankClient {
 }
 
 class ClientFrame extends Frame {
-	private static final int GAME_WIDTH = 800;
-	private static final int GAME_HEIGHT = 600;
-	private static final int GAME_X_LOC = 400;
-	private static final int GAME_Y_LOC = 300;
+	public static final int GAME_WIDTH = 800;
+	public static final int GAME_HEIGHT = 600;
+	public static final int GAME_X_LOC = 400;
+	public static final int GAME_Y_LOC = 300;
 	
 	private final int INTERVAL = 30; // ms
 	
-	Tank tank1 = new Tank(50, 50, 30, 30, true, Color.RED);
+	FriendTank tank1 = new FriendTank(50, 50, 30, 30, true, Color.RED, this);
+	EnemyTank tank2 = new EnemyTank(50, 50, 30, 30, Color.BLUE, this);
 	
 	Image offScreenImage = null;
 	
@@ -41,11 +42,15 @@ class ClientFrame extends Frame {
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(Graphics g) {		
 		tank1.draw(g);
+		tank2.draw(g);
 		for(Iterator<Missle> it = tank1.barrel.iterator(); it.hasNext();) {
 			Missle firedMissle = it.next();
 			firedMissle.draw(g);
+			if(isOutOfBound(firedMissle.x, firedMissle.y)) {
+				it.remove();
+			}
 		}
 	}
 	
@@ -99,6 +104,13 @@ class ClientFrame extends Frame {
 		g.drawImage(offScreenImage, 0, 0, null);
 		
 		gOffScreenImage.setColor(c);
+	}
+	
+	public boolean isOutOfBound(int xIndex, int yIndex) {
+		if(0 > xIndex || xIndex > GAME_WIDTH || 0 > yIndex || yIndex > GAME_HEIGHT){
+			return true;
+		}
+		return false;
 	}
 }
 

@@ -1,11 +1,10 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.KeyEvent;
 
 public class Missle extends ObjectInTankWar{
 	
-	public static final int MISSLE_WIDTH = 6;
-	public static final int MISSLE_HEIGHT = 6;
+	public static final int MISSLE_WIDTH = 10;
+	public static final int MISSLE_HEIGHT = 10;
 	/**
 	 * @param x
 	 * @param y
