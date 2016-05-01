@@ -4,10 +4,8 @@ import java.awt.event.*;
 
 
 public class TankClient {
-
 	public static void main(String[] args) {
 		new ClientFrame();
-		
 	}
 }
 

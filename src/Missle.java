@@ -6,6 +6,7 @@ public class Missle extends ObjectInTankWar{
 	public static final int MISSLE_WIDTH = 10;
 	public static final int MISSLE_HEIGHT = 10;
 	public static final int LIFE_MINUS_PER_HIT = 25;
+	
 	/**
 	 * @param x
 	 * @param y

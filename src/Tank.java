@@ -7,36 +7,12 @@ public class Tank extends ObjectInTankWar{
 	public static final int MISSLE_STEP = 10;
 	public static final int TANK_WIDTH = 30;
 	public static final int TANK_HEIGHT = 30;
-	public static final HashMap<Integer, Direction> tankDir = createTankDirMap();
-	public static final HashMap<Integer, Direction> missleDir = createMissleDirMap();
 	boolean role, isLive;
 	int xBarrelDirection, yBarrelDirection;
 	ClientFrame clientFrame = null;
 	ArrayList<Missle> barrel = new ArrayList<Missle>();
 	BloodBar bloodBar = new BloodBar();
 	int life, wholeLife;
-	
-	public static HashMap<Integer, Direction> createTankDirMap() {
-		HashMap<Integer, Direction> tankTempDir = new HashMap<Integer, Direction>();
-		tankTempDir.put(0, new Direction(0, -TANK_STEP));
-		tankTempDir.put(1, new Direction(0, TANK_STEP));
-		tankTempDir.put(2, new Direction(-TANK_STEP, 0));
-		tankTempDir.put(3, new Direction(TANK_STEP, 0));
-		return tankTempDir;
-	}
-	
-	public static HashMap<Integer, Direction> createMissleDirMap() {
-		HashMap<Integer, Direction> missleTempDir = new HashMap<Integer, Direction>();
-		missleTempDir.put(0, new Direction(-MISSLE_STEP, MISSLE_STEP));
-		missleTempDir.put(1, new Direction(0, MISSLE_STEP));
-		missleTempDir.put(2, new Direction(MISSLE_STEP, MISSLE_STEP));
-		missleTempDir.put(3, new Direction(-MISSLE_STEP, 0));
-		missleTempDir.put(4, new Direction(MISSLE_STEP, 0));
-		missleTempDir.put(5, new Direction(-MISSLE_STEP, -MISSLE_STEP));
-		missleTempDir.put(6, new Direction(0, -MISSLE_STEP));
-		missleTempDir.put(7, new Direction(MISSLE_STEP, -MISSLE_STEP));
-		return missleTempDir;
-	}
 	
 	public void draw(Graphics g) {
 		

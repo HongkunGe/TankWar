@@ -15,53 +15,50 @@ public class FriendTank extends Tank{
 	public void keyPressed(KeyEvent e) {
 		int direction = e.getKeyCode();
 		Missle firedMissle = null;
-
+		Direction dir = null;
+		boolean isFireMissle = false;
+		
 		if(direction == KeyEvent.VK_UP) {
-			xDir = 0;
-			yDir = -TANK_STEP;
+			dir = DirectionGenerator.getDirection(Compass.U, TANK_STEP);
 		} else if(direction == KeyEvent.VK_DOWN) {
-			xDir = 0;
-			yDir = TANK_STEP;
+			dir = DirectionGenerator.getDirection(Compass.D, TANK_STEP);
 		} else if(direction == KeyEvent.VK_LEFT) {
-			xDir = -TANK_STEP;
-			yDir = 0;
+			dir = DirectionGenerator.getDirection(Compass.L, TANK_STEP);
 		} else if(direction == KeyEvent.VK_RIGHT) {
-			xDir = TANK_STEP;
-			yDir = 0;
-		} else if(direction == KeyEvent.VK_NUMPAD1) {
-			firedMissle = fire(-MISSLE_STEP, MISSLE_STEP);
-		} else if(direction == KeyEvent.VK_NUMPAD2) {
-			firedMissle = fire(0, MISSLE_STEP);
-		} else if(direction == KeyEvent.VK_NUMPAD3) {
-			firedMissle = fire(MISSLE_STEP, MISSLE_STEP);
-		} else if(direction == KeyEvent.VK_NUMPAD4) {
-			firedMissle = fire(-MISSLE_STEP, 0);
-		} else if(direction == KeyEvent.VK_NUMPAD5) {
-			superFire();
-		} else if(direction == KeyEvent.VK_NUMPAD6) {
-			firedMissle = fire(MISSLE_STEP, 0);
-		} else if(direction == KeyEvent.VK_NUMPAD7) {
-			firedMissle = fire(-MISSLE_STEP, -MISSLE_STEP);
-		} else if(direction == KeyEvent.VK_NUMPAD8) {
-			firedMissle = fire(0, -MISSLE_STEP);
-		} else if(direction == KeyEvent.VK_NUMPAD9) {
-			firedMissle = fire(MISSLE_STEP, -MISSLE_STEP);
+			dir = DirectionGenerator.getDirection(Compass.R, TANK_STEP);
 		} else if(direction == KeyEvent.VK_F2){
+			// restart
 			if(!this.isLive()) {
 				this.isLive = true;
 				this.life = 100;
 			}
+			return;
+		} else if(direction == KeyEvent.VK_NUMPAD5) {
+			superFire();
+			return;
+		} else if(KeyEvent.VK_NUMPAD1 <= direction && direction <= KeyEvent.VK_NUMPAD9){
+			isFireMissle = true;
+			dir = DirectionGenerator.getDirection(direction - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
+		} else {
+			return;
 		}
-		if( firedMissle != null) {
+		
+		if(isFireMissle) {
+			firedMissle = fire(dir.x, dir.y);
 			barrel.add(firedMissle);
 		} else {
+			xDir = dir.x;
+			yDir = dir.y;
 			this.xBarrelDirection = (int) Math.signum(xDir) * FriendTank.TANK_WIDTH / 2;
 			this.yBarrelDirection = (int) Math.signum(yDir) * FriendTank.TANK_HEIGHT / 2;
 		}
 	}
 	public void superFire() {
-		for(int i = 0; i < 8; i++) {
-			this.barrel.add(fire(missleDir.get(i).x, missleDir.get(i).y));
+		for(int i = 1; i < 10; i++) {
+			if(i == 5) 
+				continue;
+			Direction dir = DirectionGenerator.getDirection(i - 1, MISSLE_STEP);
+			this.barrel.add(fire(dir.x, dir.y));
 		}
 	}
 	public void keyReleased(KeyEvent e) {
