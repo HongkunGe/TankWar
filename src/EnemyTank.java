@@ -9,15 +9,18 @@ public class EnemyTank extends Tank{
 		super(x, y, width, height, false, c, clientFrame);
 	}
 	
-	public void getDir() {
-		Missle firedMissle = null;
+	public void getTankDir() {
 		int tankDirIndex = generateRandom(0, 4);
-		int missleDirIndex = generateRandom(0, 8);
 		
 		if(tankDirIndex < 4) {
 			xDir = Tank.tankDir.get(tankDirIndex).x;
 			yDir = Tank.tankDir.get(tankDirIndex).y;
 		}
+	}
+	
+	public void getRandomMissle() {
+		Missle firedMissle = null;
+		int missleDirIndex = generateRandom(0, 8);
 		if(missleDirIndex < 8) {
 			firedMissle = fire(missleDir.get(missleDirIndex).x, missleDir.get(missleDirIndex).y);
 		}
@@ -28,7 +31,6 @@ public class EnemyTank extends Tank{
 			this.yBarrelDirection = (int) Math.signum(yDir) * FriendTank.TANK_HEIGHT / 2;
 		}
 	}
-	
 	// Generate the random number [0, 7]
 	public static int generateRandom(int min, int max) {
 		int randomNum = (int)(Math.random() * ((max - min) + 1) + min);
@@ -37,8 +39,12 @@ public class EnemyTank extends Tank{
 	
 	public void draw(Graphics g) {
 		if(stepCount % STEPS_TOTAL == 0) {
-			getDir();
+			getTankDir();
 			stepCount = 0;
+		}
+		
+		if(stepCount % (STEPS_TOTAL / 2) == 0) {
+			getRandomMissle();
 		}
 		stepCount ++;
 		super.draw(g);

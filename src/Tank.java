@@ -48,7 +48,6 @@ public class Tank extends ObjectInTankWar{
 		// Draw the barrel
 		int xStart = x + TANK_WIDTH / 2, yStart = y + TANK_HEIGHT / 2;
 		g.setColor(Color.BLACK);
-//		g.drawString("Missle Count: " + barrel.size(), 10, 70);
 		g.drawLine(xStart, yStart, xStart + xBarrelDirection, yStart + yBarrelDirection);
 		g.setColor(cOriginal);
 		
@@ -60,10 +59,16 @@ public class Tank extends ObjectInTankWar{
 		if(x > ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH;
 		if(y > ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT;
 		
+		// Tank hit wall
+		if(clientFrame.wall.isHitByObject(this) || isRamByTeamTank()) {
+			x -= xDir;
+			y -= yDir;
+		}
+		
 		for(Iterator<Missle> it = barrel.iterator(); it.hasNext();) {
 			Missle firedMissle = it.next();
 			firedMissle.draw(g);
-			if(clientFrame.isOutOfBound(firedMissle.x, firedMissle.y)) {
+			if(clientFrame.isOutOfBound(firedMissle.x, firedMissle.y) || clientFrame.wall.isHitByObject(firedMissle)) {
 				it.remove();
 				continue;
 			}
@@ -88,6 +93,31 @@ public class Tank extends ObjectInTankWar{
 		this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
 		this.isLive = false;
 	}
+	
+	public boolean isRamByTeamTank() {
+		boolean isRam = false;
+		if(this.role) {
+			// TODO
+		} else {
+			for(Iterator<EnemyTank> itEt = clientFrame.enemyTanks.iterator(); itEt.hasNext();) {
+				EnemyTank et = itEt.next();
+				if(et == this)
+					continue;
+				isRam = isRam || isRamByOtherTank(et);
+				if(isRam) {
+					break;
+				}
+			}
+		}
+		return isRam;
+	}
+	
+	public boolean isRamByOtherTank(Tank tank) {
+		int tx1 = x + TANK_WIDTH / 2, ty1 = y + TANK_HEIGHT / 2, tr1 = TANK_WIDTH / 2;
+		int tx2 = tank.x + Tank.TANK_WIDTH / 2, ty2 = tank.y + Tank.TANK_HEIGHT / 2, tr2 = Tank.TANK_WIDTH / 2;
+		return TankMath.isCircleCut(tx1, ty1, tr1, tx2, ty2, tr2);
+	}
+	
 	public Missle fire(int xMissleDir, int yMissleDir) {
 		int xMissle = x + FriendTank.TANK_WIDTH / 2 - Missle.MISSLE_WIDTH / 2;
 		int yMissle = y + FriendTank.TANK_HEIGHT / 2 - Missle.MISSLE_HEIGHT / 2;
@@ -136,10 +166,3 @@ public class Tank extends ObjectInTankWar{
 	}
 }
 
-class Direction{
-	public int x, y;
-	public Direction(int x, int y){
-		this.x = x;
-		this.y = y;
-	}
-}

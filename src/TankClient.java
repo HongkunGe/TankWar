@@ -24,12 +24,13 @@ class ClientFrame extends Frame {
 	
 	public ArrayList<EnemyTank> enemyTanks = new ArrayList<EnemyTank>();
 	
+	public Wall wall = new Wall(this);
 	Image offScreenImage = null;
 	
 	public ClientFrame() {
 		super("TankClient");
 		for(int i = 6; i < 10; i++){
-			enemyTanks.add(new EnemyTank(50, i * 10 + 30, 30, 30, Color.BLUE, this));
+			enemyTanks.add(new EnemyTank(50, i * 40 + 30, 30, 30, Color.BLUE, this));
 		}		
 		
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -45,6 +46,8 @@ class ClientFrame extends Frame {
 
 	@Override
 	public void paint(Graphics g) {
+		
+		wall.draw(g);
 		if(tank1.isLive()) {
 			tank1.draw(g);
 		}
