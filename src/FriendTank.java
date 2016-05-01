@@ -4,12 +4,12 @@ import java.awt.event.*;
 
 public class FriendTank extends Tank{
 	
-	public FriendTank(int x, int y, int width, int height, boolean role, Color c, ClientFrame clientFrame) {
-		super(x, y, width, height, role, c, clientFrame);
+	public FriendTank(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
+		super(x, y, width, height, role, c, life, clientFrame);
 	}
 	
-	public FriendTank(int x, int y, int width, int height, boolean role, Color c) {
-		super(x, y, width, height, role, c);
+	public FriendTank(int x, int y, int width, int height, boolean role, Color c, int life) {
+		super(x, y, width, height, role, c, life);
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -36,6 +36,8 @@ public class FriendTank extends Tank{
 			firedMissle = fire(MISSLE_STEP, MISSLE_STEP);
 		} else if(direction == KeyEvent.VK_NUMPAD4) {
 			firedMissle = fire(-MISSLE_STEP, 0);
+		} else if(direction == KeyEvent.VK_NUMPAD5) {
+			superFire();
 		} else if(direction == KeyEvent.VK_NUMPAD6) {
 			firedMissle = fire(MISSLE_STEP, 0);
 		} else if(direction == KeyEvent.VK_NUMPAD7) {
@@ -44,6 +46,11 @@ public class FriendTank extends Tank{
 			firedMissle = fire(0, -MISSLE_STEP);
 		} else if(direction == KeyEvent.VK_NUMPAD9) {
 			firedMissle = fire(MISSLE_STEP, -MISSLE_STEP);
+		} else if(direction == KeyEvent.VK_F2){
+			if(!this.isLive()) {
+				this.isLive = true;
+				this.life = 100;
+			}
 		}
 		if( firedMissle != null) {
 			barrel.add(firedMissle);
@@ -52,7 +59,11 @@ public class FriendTank extends Tank{
 			this.yBarrelDirection = (int) Math.signum(yDir) * FriendTank.TANK_HEIGHT / 2;
 		}
 	}
-
+	public void superFire() {
+		for(int i = 0; i < 8; i++) {
+			this.barrel.add(fire(missleDir.get(i).x, missleDir.get(i).y));
+		}
+	}
 	public void keyReleased(KeyEvent e) {
 		int direction = e.getKeyCode();
 

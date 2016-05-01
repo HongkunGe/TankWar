@@ -19,18 +19,17 @@ class ClientFrame extends Frame {
 	
 	private final int INTERVAL = 30; // ms
 	
-	FriendTank tank1 = new FriendTank(500, 500, 30, 30, true, Color.RED, this);
+	public FriendTank tank1 = new FriendTank(500, 500, 30, 30, true, Color.RED, 100, this);
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
-	
 	public ArrayList<EnemyTank> enemyTanks = new ArrayList<EnemyTank>();
-	
 	public Wall wall = new Wall(this);
+	
 	Image offScreenImage = null;
 	
 	public ClientFrame() {
 		super("TankClient");
 		for(int i = 6; i < 10; i++){
-			enemyTanks.add(new EnemyTank(50, i * 40 + 30, 30, 30, Color.BLUE, this));
+			enemyTanks.add(new EnemyTank(50, i * 40 + 30, 30, 30, Color.BLUE, 40, this));
 		}		
 		
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -64,6 +63,7 @@ class ClientFrame extends Frame {
 		g.setColor(Color.BLACK);
 		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
 		g.drawString("Tanks Count: " + enemyTanks.size(), 10, 60);
+		g.drawString("Tank Life: " + tank1.life, 10, 80);
 		g.setColor(cOriginal);
 		
 		for(Iterator<Explosion> it = explosionEvents.iterator(); it.hasNext();) {

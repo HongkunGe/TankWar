@@ -13,6 +13,8 @@ public class Tank extends ObjectInTankWar{
 	int xBarrelDirection, yBarrelDirection;
 	ClientFrame clientFrame = null;
 	ArrayList<Missle> barrel = new ArrayList<Missle>();
+	BloodBar bloodBar = new BloodBar();
+	int life, wholeLife;
 	
 	public static HashMap<Integer, Direction> createTankDirMap() {
 		HashMap<Integer, Direction> tankTempDir = new HashMap<Integer, Direction>();
@@ -49,6 +51,7 @@ public class Tank extends ObjectInTankWar{
 		int xStart = x + TANK_WIDTH / 2, yStart = y + TANK_HEIGHT / 2;
 		g.setColor(Color.BLACK);
 		g.drawLine(xStart, yStart, xStart + xBarrelDirection, yStart + yBarrelDirection);
+		bloodBar.draw(g);
 		g.setColor(cOriginal);
 		
 		x += xDir;
@@ -59,7 +62,7 @@ public class Tank extends ObjectInTankWar{
 		if(x > ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH;
 		if(y > ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT;
 		
-		// Tank hit wall
+		// Tanks hit wall or two tanks in the same team ram into each other, they stay here.
 		if(clientFrame.wall.isHitByObject(this) || isRamByTeamTank()) {
 			x -= xDir;
 			y -= yDir;
@@ -79,11 +82,13 @@ public class Tank extends ObjectInTankWar{
 					EnemyTank et = itEt.next();
 					if(firedMissle.hitTank(et) && et.isLive()) {
 						et.isHitByMissle(firedMissle);
+						it.remove();
 					}
 				}
 			} else {
 				if(firedMissle.hitTank(clientFrame.tank1) && clientFrame.tank1.isLive()) {
 					clientFrame.tank1.isHitByMissle(firedMissle);
+					it.remove();
 				}
 			}
 		}
@@ -91,7 +96,10 @@ public class Tank extends ObjectInTankWar{
 	
 	public void isHitByMissle(Missle firedMissle) {
 		this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
-		this.isLive = false;
+		this.life -= Missle.LIFE_MINUS_PER_HIT;
+		if(this.life <= 0) {
+			this.isLive = false;
+		}
 	}
 	
 	public boolean isRamByTeamTank() {
@@ -127,6 +135,19 @@ public class Tank extends ObjectInTankWar{
 		return new Missle(xMissle, yMissle, xMissleDir, yMissleDir);
 	}
 	
+	public class BloodBar {
+		public void draw(Graphics g) {
+			Color cOriginal = g.getColor();
+			g.setColor(Color.YELLOW);
+			g.drawRect(x, y - 10, TANK_WIDTH / 2, 6);
+			
+			int widthOfBlood = TANK_WIDTH / 2 * life / wholeLife;
+			g.setColor(Color.RED);
+			g.fillRect(x, y - 9, widthOfBlood, 5);
+			g.setColor(cOriginal);
+		}
+	}
+	
 	/**
 	 * @param x
 	 * @param y
@@ -135,9 +156,11 @@ public class Tank extends ObjectInTankWar{
 	 * @param role
 	 * @param c
 	 */
-	public Tank(int x, int y, int width, int height, boolean role, Color c) {
+	public Tank(int x, int y, int width, int height, boolean role, Color c, int life) {
 		super(x, y, width, height ,0 ,0 ,c);
 		
+		this.life = life;
+		this.wholeLife = life;
 		this.isLive = true;
 		this.role = role;
 		this.xBarrelDirection = 0;
@@ -153,8 +176,8 @@ public class Tank extends ObjectInTankWar{
 	 * @param c
 	 * @param clientFrame
 	 */
-	public Tank(int x, int y, int width, int height, boolean role, Color c, ClientFrame clientFrame) {
-		this(x, y, width, height, role, c);
+	public Tank(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
+		this(x, y, width, height, role, c, life);
 		this.clientFrame = clientFrame;
 	}
 

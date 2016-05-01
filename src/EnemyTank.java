@@ -5,8 +5,8 @@ public class EnemyTank extends Tank{
 	
 	private final int STEPS_TOTAL = 20;
 	private int stepCount = 0;
-	public EnemyTank(int x, int y, int width, int height, Color c, ClientFrame clientFrame) {
-		super(x, y, width, height, false, c, clientFrame);
+	public EnemyTank(int x, int y, int width, int height, Color c, int life, ClientFrame clientFrame) {
+		super(x, y, width, height, false, c, life, clientFrame);
 	}
 	
 	public void getTankDir() {
