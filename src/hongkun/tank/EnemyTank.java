@@ -1,3 +1,4 @@
+package hongkun.tank;
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -13,7 +14,7 @@ public class EnemyTank extends Tank{
 		int tankDirIndex = TankMath.generateRandom(0, 4);
 		
 		if(tankDirIndex < 4) {
-			Direction dir = DirectionGenerator.getDirection(tankDirIndex, TANK_STEP);
+			Direction dir = DirectionGenerator.getDirection(tankDirIndex * 2 + 1, TANK_STEP);
 			xDir = dir.x;
 			yDir = dir.y;
 		}
@@ -21,8 +22,8 @@ public class EnemyTank extends Tank{
 	
 	public void getRandomMissle() {
 		Missle firedMissle = null;
-		int missleDirIndex = TankMath.generateRandom(0, 8);
-		if(missleDirIndex < 8) {
+		int missleDirIndex = TankMath.generateRandom(0, 9);
+		if(missleDirIndex < 9) {
 			Direction dir = DirectionGenerator.getDirection(missleDirIndex, MISSLE_STEP);
 			firedMissle = fire(dir.x, dir.y);
 		}

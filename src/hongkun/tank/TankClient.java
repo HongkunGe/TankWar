@@ -1,10 +1,14 @@
+package hongkun.tank;
+
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 
 public class TankClient {
 	public static void main(String[] args) {
+		new ClientFrame();
 		new ClientFrame();
 	}
 }
@@ -14,19 +18,23 @@ class ClientFrame extends Frame {
 	public static final int GAME_HEIGHT = 600;
 	public static final int GAME_X_LOC = 400;
 	public static final int GAME_Y_LOC = 300;
-	
-	private final int INTERVAL = 30; // ms
+	public static final int INTERVAL = 30; // ms
 	
 	public FriendTank tank1 = new FriendTank(500, 500, 30, 30, true, Color.RED, 100, this);
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
 	public ArrayList<EnemyTank> enemyTanks = new ArrayList<EnemyTank>();
 	public Wall wall = new Wall(this);
 	
+	private TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
+	
 	Image offScreenImage = null;
 	
 	public ClientFrame() {
 		super("TankClient");
-		for(int i = 6; i < 10; i++){
+		
+		int initTankCount = Integer.parseInt(PropertyManager.getPropertyByName("initTankCount"));
+		
+		for(int i = 0; i < initTankCount; i++){
 			enemyTanks.add(new EnemyTank(50, i * 40 + 30, 30, 30, Color.BLUE, 40, this));
 		}		
 		
@@ -39,6 +47,8 @@ class ClientFrame extends Frame {
 		this.setBackground(Color.gray);
 		
 		new Thread(new RepaintThread()).start();
+		
+		clientNetAgent.connect("127.0.0.1", TankServer.TCP_PORT);
 	}
 
 	@Override

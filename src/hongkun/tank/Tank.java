@@ -1,3 +1,4 @@
+package hongkun.tank;
 import java.util.*;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -7,6 +8,8 @@ public class Tank extends ObjectInTankWar{
 	public static final int MISSLE_STEP = 10;
 	public static final int TANK_WIDTH = 30;
 	public static final int TANK_HEIGHT = 30;
+	
+	int id = 0;
 	boolean role, isLive;
 	int xBarrelDirection, yBarrelDirection;
 	ClientFrame clientFrame = null;
@@ -28,6 +31,9 @@ public class Tank extends ObjectInTankWar{
 		g.setColor(Color.BLACK);
 		g.drawLine(xStart, yStart, xStart + xBarrelDirection, yStart + yBarrelDirection);
 		bloodBar.draw(g);
+		
+		g.setColor(Color.WHITE);
+		g.drawString(Integer.toString(this.id), x + TANK_WIDTH / 2, y + TANK_HEIGHT / 2);
 		g.setColor(cOriginal);
 		
 		x += xDir;
