@@ -11,11 +11,13 @@ public class Tank extends ObjectInTankWar{
 	
 	int id = 0;
 	boolean role, isLive;
-	int xBarrelDirection, yBarrelDirection;
-	ClientFrame clientFrame = null;
-	ArrayList<Missle> barrel = new ArrayList<Missle>();
-	BloodBar bloodBar = new BloodBar();
 	int life, wholeLife;
+	int xBarrelDirection, yBarrelDirection;
+	ArrayList<Missle> barrel = new ArrayList<Missle>();
+	
+	ClientFrame clientFrame = null;
+	BloodBar bloodBar = new BloodBar();
+	
 	
 	public void draw(Graphics g) {
 		
@@ -41,8 +43,8 @@ public class Tank extends ObjectInTankWar{
 		
 		if(x < 0) x = 0;
 		if(y < 20) y = 20;
-		if(x > ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - FriendTank.TANK_WIDTH;
-		if(y > ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - FriendTank.TANK_HEIGHT;
+		if(x > ClientFrame.GAME_WIDTH - TankByHuman.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - TankByHuman.TANK_WIDTH;
+		if(y > ClientFrame.GAME_HEIGHT - TankByHuman.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - TankByHuman.TANK_HEIGHT;
 		
 		// Tanks hit wall or two tanks in the same team ram into each other, they stay here.
 		if(clientFrame.wall.isHitByObject(this) || isRamByTeamTank()) {
@@ -60,8 +62,8 @@ public class Tank extends ObjectInTankWar{
 			
 			// hit tanks	
 			if(this.role) {
-				for(Iterator<EnemyTank> itEt = clientFrame.enemyTanks.iterator(); itEt.hasNext();) {
-					EnemyTank et = itEt.next();
+				for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
+					TankByRobot et = itEt.next();
 					if(firedMissle.hitTank(et) && et.isLive()) {
 						et.isHitByMissle(firedMissle);
 						it.remove();
@@ -89,8 +91,8 @@ public class Tank extends ObjectInTankWar{
 		if(this.role) {
 			// TODO
 		} else {
-			for(Iterator<EnemyTank> itEt = clientFrame.enemyTanks.iterator(); itEt.hasNext();) {
-				EnemyTank et = itEt.next();
+			for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
+				TankByRobot et = itEt.next();
 				if(et == this)
 					continue;
 				isRam = isRam || isRamByOtherTank(et);
@@ -109,11 +111,11 @@ public class Tank extends ObjectInTankWar{
 	}
 	
 	public Missle fire(int xMissleDir, int yMissleDir) {
-		int xMissle = x + FriendTank.TANK_WIDTH / 2 - Missle.MISSLE_WIDTH / 2;
-		int yMissle = y + FriendTank.TANK_HEIGHT / 2 - Missle.MISSLE_HEIGHT / 2;
+		int xMissle = x + TankByHuman.TANK_WIDTH / 2 - Missle.MISSLE_WIDTH / 2;
+		int yMissle = y + TankByHuman.TANK_HEIGHT / 2 - Missle.MISSLE_HEIGHT / 2;
 		
-		this.xBarrelDirection = (int) Math.signum(xMissleDir) * FriendTank.TANK_WIDTH / 2;
-		this.yBarrelDirection = (int) Math.signum(yMissleDir) * FriendTank.TANK_HEIGHT / 2;
+		this.xBarrelDirection = (int) Math.signum(xMissleDir) * TankByHuman.TANK_WIDTH / 2;
+		this.yBarrelDirection = (int) Math.signum(yMissleDir) * TankByHuman.TANK_HEIGHT / 2;
 		return new Missle(xMissle, yMissle, xMissleDir, yMissleDir);
 	}
 	
@@ -146,7 +148,7 @@ public class Tank extends ObjectInTankWar{
 		this.isLive = true;
 		this.role = role;
 		this.xBarrelDirection = 0;
-		this.yBarrelDirection = FriendTank.TANK_HEIGHT / 2;
+		this.yBarrelDirection = TankByHuman.TANK_HEIGHT / 2;
 	}
 	
 	/**

@@ -9,7 +9,6 @@ import java.io.IOException;
 public class TankClient {
 	public static void main(String[] args) {
 		new ClientFrame();
-		new ClientFrame();
 	}
 }
 
@@ -20,9 +19,10 @@ class ClientFrame extends Frame {
 	public static final int GAME_Y_LOC = 300;
 	public static final int INTERVAL = 30; // ms
 	
-	public FriendTank tank1 = new FriendTank(500, 500, 30, 30, true, Color.RED, 100, this);
+	public TankByHuman tank1 = new TankByHuman(500, 500, 30, 30, true, Color.RED, 100, this);
+	public ArrayList<TankByHuman> tanksByHumanOnline = new ArrayList<TankByHuman>();
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
-	public ArrayList<EnemyTank> enemyTanks = new ArrayList<EnemyTank>();
+	public ArrayList<TankByRobot> tankByRobots = new ArrayList<TankByRobot>();
 	public Wall wall = new Wall(this);
 	
 	private TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
@@ -35,7 +35,7 @@ class ClientFrame extends Frame {
 		int initTankCount = Integer.parseInt(PropertyManager.getPropertyByName("initTankCount"));
 		
 		for(int i = 0; i < initTankCount; i++){
-			enemyTanks.add(new EnemyTank(50, i * 40 + 30, 30, 30, Color.BLUE, 40, this));
+			tankByRobots.add(new TankByRobot(50, i * 40 + 30, 30, 30, false, Color.BLUE, 40, this));
 		}		
 		
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -59,8 +59,16 @@ class ClientFrame extends Frame {
 			tank1.draw(g);
 		}
 		
-		for(Iterator<EnemyTank> itEt = enemyTanks.iterator(); itEt.hasNext();) {
-			EnemyTank et = itEt.next();
+		for(Iterator<TankByHuman> it = tanksByHumanOnline.iterator(); it.hasNext();) {
+			TankByHuman t = it.next();
+			t.draw(g);
+			if(!t.isLive()) {
+				it.remove();
+			}
+		}
+		
+		for(Iterator<TankByRobot> itEt = tankByRobots.iterator(); itEt.hasNext();) {
+			TankByRobot et = itEt.next();
 			et.draw(g);
 			if(!et.isLive()) {
 				itEt.remove();
@@ -70,7 +78,7 @@ class ClientFrame extends Frame {
 		Color cOriginal = g.getColor();
 		g.setColor(Color.BLACK);
 		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
-		g.drawString("Tanks Count: " + enemyTanks.size(), 10, 60);
+		g.drawString("Tanks Count: " + tankByRobots.size(), 10, 60);
 		g.drawString("Tank Life: " + tank1.life, 10, 80);
 		g.setColor(cOriginal);
 		

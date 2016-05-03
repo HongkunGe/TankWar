@@ -3,16 +3,26 @@ package hongkun.tank;
 import java.awt.*;
 import java.awt.event.*;
 
-public class FriendTank extends Tank{
+public class TankByHuman extends Tank{
 	
-	public FriendTank(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
+	public TankByHuman(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
 		super(x, y, width, height, role, c, life, clientFrame);
 	}
 	
-	public FriendTank(int x, int y, int width, int height, boolean role, Color c, int life) {
+	public TankByHuman(int x, int y, int width, int height, boolean role, Color c, int life) {
 		super(x, y, width, height, role, c, life);
 	}
-
+	
+	// copy construction 
+	public TankByHuman(TankByHuman originalTank) {
+		super(originalTank.x, originalTank.y, originalTank.width, originalTank.height, originalTank.role, originalTank.c, originalTank.life, originalTank.clientFrame);
+		this.id = originalTank.id;
+		this.xDir = originalTank.xDir;
+		this.yDir = originalTank.yDir;
+		this.xBarrelDirection = originalTank.xBarrelDirection;
+		this.yBarrelDirection = originalTank.yBarrelDirection;
+	}
+	
 	public void keyPressed(KeyEvent e) {
 		int direction = e.getKeyCode();
 		Missle firedMissle = null;
@@ -50,8 +60,8 @@ public class FriendTank extends Tank{
 		} else {
 			xDir = dir.x;
 			yDir = dir.y;
-			this.xBarrelDirection = (int) Math.signum(xDir) * FriendTank.TANK_WIDTH / 2;
-			this.yBarrelDirection = (int) Math.signum(yDir) * FriendTank.TANK_HEIGHT / 2;
+			this.xBarrelDirection = (int) Math.signum(xDir) * TankByHuman.TANK_WIDTH / 2;
+			this.yBarrelDirection = (int) Math.signum(yDir) * TankByHuman.TANK_HEIGHT / 2;
 		}
 	}
 	public void superFire() {

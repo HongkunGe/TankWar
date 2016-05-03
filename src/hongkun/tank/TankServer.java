@@ -1,10 +1,13 @@
 package hongkun.tank;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.HashMap;
 
 public class TankServer {
 	
@@ -14,7 +17,7 @@ public class TankServer {
 	
 	
 	// store all clients' ip and udpPort for data distribution.
-	private ArrayList<Client> clients = new ArrayList<Client>();
+	private HashMap<Integer, Client> clients = new HashMap<Integer, Client>();
 	private int id = CLIENT_ID_START;
 	
 	class Client {
@@ -52,9 +55,68 @@ public class TankServer {
 		public int getId() {
 			return id;
 		}
-	}
 
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "Client [IPAdress=" + IPAdress + ", port=" + port + ", id=" + id + "]";
+		}
+	}
+	
+	public class UDPThread implements Runnable {
+
+		@Override
+		public void run() {
+			byte[] buf = new byte[1024]; // 1k
+			DatagramSocket ds = null;
+			DatagramPacket dp = new DatagramPacket(buf, buf.length);
+			try {
+				//If set InetAddress.getLocalHost() here, an exception will be raised.  Cannot assign requested address: Datagram send failed.
+				ds = new DatagramSocket(TankServer.UDP_PORT);
+System.out.println("UDP Thread start in Client on port " + TankServer.UDP_PORT);
+				while(true) {
+					
+					/**
+					 * A new client is added.
+					 */
+					ds.receive(dp);
+
+					ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+					DataInputStream dis = new DataInputStream(bais);
+					int idReceived = dis.readInt();
+System.out.println("A packet received from Tank Client#" + idReceived);
+
+					// Distribute: transfer the new tank received from one client to all other clients.
+					for(Iterator<HashMap.Entry<Integer,TankServer.Client>> it = clients.entrySet().iterator(); it.hasNext();) {
+						HashMap.Entry<Integer,TankServer.Client> client = it.next();
+						if(idReceived != client.getKey()) {
+							dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
+							ds.send(dp);
+						}
+						
+						// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
+						dp.setSocketAddress(null);
+						ds.receive(dp);
+						Client newClient = clients.get(idReceived);
+						dp.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
+						ds.send(dp);
+					}
+				}
+			} catch (SocketException | UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	public void start() {
+		
+		// UDP listener
+		UDPThread udpThread = new UDPThread();
+		new Thread(udpThread).start();
+		
 		// TCP listener
 		ServerSocket serverSocket = null;
 		try {
@@ -72,14 +134,13 @@ public class TankServer {
 				DataInputStream dis = new DataInputStream(socket.getInputStream());
 				int udpPort = dis.readInt();
 				String ipAddress = socket.getInetAddress().getHostAddress();
-				clients.add(new Client(ipAddress, udpPort, id));
+				clients.put(id, new Client(ipAddress, udpPort, id));
 				
 				//Send back the id to client.
 				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 				dos.writeInt(id++);
-				socket.close();
 				
-System.out.println("Connected! Address: " + socket.getInetAddress() + ":" + socket.getPort() + "----HOST Address: " + ipAddress + ":" + udpPort);
+System.out.println("#" + (id - 1) + " Connected! TCP Address: " + socket.getInetAddress() + ":" + socket.getPort() + "----UDP HOST Address: " + ipAddress + ":" + udpPort);
 				
 			}
 		} catch (IOException e) {
@@ -101,13 +162,9 @@ System.out.println("Connected! Address: " + socket.getInetAddress() + ":" + sock
 				}
 			}
 		}
-		
-		// UDP listener
 	}
 	
 	public static void main(String[] args) {
 		new TankServer().start();
 	}
-
-	
 }

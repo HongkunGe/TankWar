@@ -2,12 +2,12 @@ package hongkun.tank;
 import java.awt.Color;
 import java.awt.Graphics;
 
-public class EnemyTank extends Tank{
+public class TankByRobot extends Tank{
 	
 	private final int STEPS_TOTAL = 20;
 	private int stepCount = 0;
-	public EnemyTank(int x, int y, int width, int height, Color c, int life, ClientFrame clientFrame) {
-		super(x, y, width, height, false, c, life, clientFrame);
+	public TankByRobot(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
+		super(x, y, width, height, role, c, life, clientFrame);
 	}
 	
 	public void getRandomTankDir() {
@@ -30,8 +30,8 @@ public class EnemyTank extends Tank{
 		if( firedMissle != null) {
 			barrel.add(firedMissle);
 		} else {
-			this.xBarrelDirection = (int) Math.signum(xDir) * FriendTank.TANK_WIDTH / 2;
-			this.yBarrelDirection = (int) Math.signum(yDir) * FriendTank.TANK_HEIGHT / 2;
+			this.xBarrelDirection = (int) Math.signum(xDir) * Tank.TANK_WIDTH / 2;
+			this.yBarrelDirection = (int) Math.signum(yDir) * Tank.TANK_HEIGHT / 2;
 		}
 	}
 	
