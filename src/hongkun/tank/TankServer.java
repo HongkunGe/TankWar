@@ -65,6 +65,13 @@ public class TankServer {
 		}
 	}
 	
+	private int getIdByDatagramPacket(byte[] buf) throws IOException {
+		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+		DataInputStream dis = new DataInputStream(bais);
+		int idReceived = dis.readInt();
+		return idReceived;
+	}
+	
 	public class UDPThread implements Runnable {
 
 		@Override
@@ -82,10 +89,7 @@ System.out.println("UDP Thread start in Client on port " + TankServer.UDP_PORT);
 					 * A new client is added.
 					 */
 					ds.receive(dp);
-
-					ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-					DataInputStream dis = new DataInputStream(bais);
-					int idReceived = dis.readInt();
+					int idReceived = getIdByDatagramPacket(buf);
 System.out.println("A packet received from Tank Client#" + idReceived);
 
 					// Distribute: transfer the new tank received from one client to all other clients.
@@ -94,14 +98,15 @@ System.out.println("A packet received from Tank Client#" + idReceived);
 						if(idReceived != client.getKey()) {
 							dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
 							ds.send(dp);
+
+							// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
+							// don't need to care about the address when receiving a datagramPacket.
+							ds.receive(dp);
+System.out.println("A packet received from Tank Client#" + getIdByDatagramPacket(buf));
+							Client newClient = clients.get(idReceived);
+							dp.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
+							ds.send(dp);
 						}
-						
-						// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
-						dp.setSocketAddress(null);
-						ds.receive(dp);
-						Client newClient = clients.get(idReceived);
-						dp.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
-						ds.send(dp);
 					}
 				}
 			} catch (SocketException | UnknownHostException e) {

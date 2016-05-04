@@ -7,8 +7,20 @@ public class TankClientNetAgent {
 	private static int UDP_PORT = 2225;
 	private ClientFrame clientFrame;
 	
+	/*
+	 * The datagramSocket should be initialized only one time. Or an "can not bind" exception will be raised.
+	 * */
+	DatagramSocket datagramSocket = null;
+	
 	public TankClientNetAgent(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
+		
+		//If set InetAddress.getLocalHost() here, Package cannot be received. 
+		try {
+			datagramSocket = new DatagramSocket(TankClientNetAgent.UDP_PORT);
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void connect(String IP, int PORT) {		
@@ -45,13 +57,13 @@ System.out.println("Server Replied and Gave me an ID: " + id);
 		/* When TCP connection is finished, we send the tank creation data to server, 
 		 *   Using UDP. 
 		 */
-		TankNewMessage msg = new TankNewMessage(clientFrame.tank1);
+		TankNewMessage msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_NEWMESSAGE);
 		send(msg);
 		
 		
 		/* UDP Listener
 		 * New a Tank;
-		 *  */
+		 * */
 		UDPThread udpThread = new UDPThread();
 		new Thread(udpThread).start();
 	}
@@ -61,27 +73,40 @@ System.out.println("Server Replied and Gave me an ID: " + id);
 		@Override
 		public void run() {
 			byte[] buf = new byte[1024]; // 1k
-			DatagramSocket ds = null;
+			
 			DatagramPacket dp = new DatagramPacket(buf, buf.length);
 			try {
-				//If set InetAddress.getLocalHost() here, Package cannot be received. 
-				ds = new DatagramSocket(TankClientNetAgent.UDP_PORT);
 System.out.println("UDP Thread start in Client on port " + TankClientNetAgent.UDP_PORT);
 				while(true) {
-					ds.receive(dp);
+					datagramSocket.receive(dp);
 
 					ByteArrayInputStream bais = new ByteArrayInputStream(buf);
 					DataInputStream dis = new DataInputStream(bais);
+					
+					TankMessage msg = null;
+					msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+					msg.decode(dis); // messageType will be decoded in this step.					
+					
+					if(msg.messageType == TankMessage.TANK_NEWMESSAGE) {
+						/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
+						 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
+						 * client by server.
+						 * */
+						TankByHuman newTankByHumanOnline = msg.tank;
+						clientFrame.tanksByHumanOnline.add(newTankByHumanOnline);
+System.out.println("A packet received from Tank Server to New a Tank#" + newTankByHumanOnline.id);
+						TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_ALREADYMESSAGE);
+						send(msgAlready);
+						
+					} else if(msg.messageType == TankMessage.TANK_ALREADYMESSAGE) {
+						TankByHuman newTankByHumanOnline = msg.tank;
+						clientFrame.tanksByHumanOnline.add(newTankByHumanOnline);
+System.out.println("A packet received from Tank Server to Add an old Tank#" + newTankByHumanOnline.id);	
 
-					TankNewMessage msg = new TankNewMessage(clientFrame.tank1);
-					TankByHuman newTankByHumanOnline = msg.decodeAndNewTank(dis);
-System.out.println("A packet received from TankServer to New a Tank#" + newTankByHumanOnline.id);
-					clientFrame.tanksByHumanOnline.add(newTankByHumanOnline);
-					
-					/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
-					 * the client will send an "alreadyExist" message back to the server and then transfered to newly added client.
-					 * */
-					
+					} else if(msg.messageType == TankMessage.TANK_KEYEVENTMESSAGE) {
+						
+					}
+
 					
 					
 				}
@@ -96,7 +121,7 @@ System.out.println("A packet received from TankServer to New a Tank#" + newTankB
 	}
 	
 	private void send(TankMessage msg) {
-		msg.send("127.0.0.1", TankServer.UDP_PORT);
+		msg.send(datagramSocket, "127.0.0.1", TankServer.UDP_PORT);
 	}
 
 	/**
