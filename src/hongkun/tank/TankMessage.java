@@ -12,7 +12,8 @@ public abstract class TankMessage {
 	public static final int TANK_MESSAGE_DECODE = 0;
 	public static final int TANK_NEWMESSAGE = 1;
 	public static final int TANK_ALREADYMESSAGE = 2;
-	public static final int TANK_KEYEVENTMESSAGE = 3;
+	public static final int TANK_KEYPRESSEDMESSAGE = 3;
+	public static final int TANK_KEYRELEASEDDMESSAGE = 4;
 	
 	TankByHuman tank;
 	int messageType;

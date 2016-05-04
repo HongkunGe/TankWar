@@ -5,7 +5,9 @@ import java.awt.event.*;
 
 public class TankByHuman extends Tank{
 	
-	public int keyEventCode = 0;
+	public int keyPressedCode = 0;
+	public int keyReleasedCode = 0;
+	private boolean afterRelease = true;
 	
 	public TankByHuman(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
 		super(x, y, width, height, role, c, life, clientFrame);
@@ -23,27 +25,31 @@ public class TankByHuman extends Tank{
 		this.yDir = originalTank.yDir;
 		this.xBarrelDirection = originalTank.xBarrelDirection;
 		this.yBarrelDirection = originalTank.yBarrelDirection;
-		this.keyEventCode = originalTank.keyEventCode;
+		this.keyPressedCode = originalTank.keyPressedCode;
+		this.keyReleasedCode = originalTank.keyReleasedCode;
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		int oldKeyEventCode = keyEventCode;
-		keyEventCode = e.getKeyCode();
+		int oldKeyEventCode = keyPressedCode;
+		keyPressedCode = e.getKeyCode();
 		
 		/*
 		 * Send key event as message to server and transfer the message to all other clients.
+		 * When user hold the key, only one message is needed to be sent, otherwise the keyEventMessage
+		 * is always sent.
 		 * */
-		if(keyEventCode != oldKeyEventCode) {
-			TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYEVENTMESSAGE);
+		if(keyPressedCode != oldKeyEventCode || afterRelease) {
+			TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYPRESSEDMESSAGE);
 			clientFrame.clientNetAgent.send(msg);
+			afterRelease = false;
 		}
 		
 		// keyEventCode is updated.
 		keyPressedManager();
 	}
 	
-	public void onlineKeyPressed(int keyCodeReceivedOnline) {
-		keyEventCode = keyCodeReceivedOnline;
+	public void onlineKeyPressed(int keyPressedCodeReceivedOnline) {
+		keyPressedCode = keyPressedCodeReceivedOnline;
 		
 		// keyEventCode is updated.
 		keyPressedManager();
@@ -54,27 +60,27 @@ public class TankByHuman extends Tank{
 		Direction dir = null;
 		boolean isFireMissle = false;
 		
-		if(keyEventCode == KeyEvent.VK_UP) {
+		if(keyPressedCode == KeyEvent.VK_UP) {
 			dir = DirectionGenerator.getDirection(Compass.U, TANK_STEP);
-		} else if(keyEventCode == KeyEvent.VK_DOWN) {
+		} else if(keyPressedCode == KeyEvent.VK_DOWN) {
 			dir = DirectionGenerator.getDirection(Compass.D, TANK_STEP);
-		} else if(keyEventCode == KeyEvent.VK_LEFT) {
+		} else if(keyPressedCode == KeyEvent.VK_LEFT) {
 			dir = DirectionGenerator.getDirection(Compass.L, TANK_STEP);
-		} else if(keyEventCode == KeyEvent.VK_RIGHT) {
+		} else if(keyPressedCode == KeyEvent.VK_RIGHT) {
 			dir = DirectionGenerator.getDirection(Compass.R, TANK_STEP);
-		} else if(keyEventCode == KeyEvent.VK_F2){
+		} else if(keyPressedCode == KeyEvent.VK_F2){
 			// restart
 			if(!this.isLive()) {
 				this.isLive = true;
 				this.life = 100;
 			}
 			return;
-		} else if(keyEventCode == KeyEvent.VK_NUMPAD5) {
+		} else if(keyPressedCode == KeyEvent.VK_NUMPAD5) {
 			superFire();
 			return;
-		} else if(KeyEvent.VK_NUMPAD1 <= keyEventCode && keyEventCode <= KeyEvent.VK_NUMPAD9){
+		} else if(KeyEvent.VK_NUMPAD1 <= keyPressedCode && keyPressedCode <= KeyEvent.VK_NUMPAD9){
 			isFireMissle = true;
-			dir = DirectionGenerator.getDirection(keyEventCode - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
+			dir = DirectionGenerator.getDirection(keyPressedCode - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
 		} else {
 			return;
 		}
@@ -89,6 +95,7 @@ public class TankByHuman extends Tank{
 			this.yBarrelDirection = (int) Math.signum(yDir) * TankByHuman.TANK_HEIGHT / 2;
 		}
 	}
+	
 	public void superFire() {
 		for(int i = 1; i < 10; i++) {
 			if(i == 5) 
@@ -97,11 +104,31 @@ public class TankByHuman extends Tank{
 			this.barrel.add(fire(dir.x, dir.y));
 		}
 	}
+	
 	public void keyReleased(KeyEvent e) {
-		int direction = e.getKeyCode();
-
-		if(direction == KeyEvent.VK_UP || direction == KeyEvent.VK_DOWN || direction == KeyEvent.VK_LEFT || direction == KeyEvent.VK_RIGHT) {
+		afterRelease = true;
+		keyReleasedCode = e.getKeyCode();
+		
+		TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYRELEASEDDMESSAGE);
+		clientFrame.clientNetAgent.send(msg);
+		keyReleasedManager();
+	}
+	
+	public void onlineKeyReleased(int keyReleasedCodeReceivedOnline) {
+		keyReleasedCode = keyReleasedCodeReceivedOnline;
+		
+		// keyEventCode is updated.
+		keyReleasedManager();
+	}
+	
+	private void keyReleasedManager() {
+		if(keyReleasedCode == KeyEvent.VK_UP || keyReleasedCode == KeyEvent.VK_DOWN || keyReleasedCode == KeyEvent.VK_LEFT || keyReleasedCode == KeyEvent.VK_RIGHT) {
 			xDir = yDir = 0;
 		}
+	}
+
+	public void setXY(int x, int y) {
+		this.x = x;
+		this.y = y;
 	}
 }

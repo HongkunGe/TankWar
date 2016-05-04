@@ -42,12 +42,7 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
-//		finally {
-//			if(datagramSocket != null && !datagramSocket.isClosed()) {
-//				datagramSocket.close();
-//			}
-//		}
+		}
 	}
 	
 	public void encode(DataOutputStream dos) throws IOException{
@@ -90,12 +85,4 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	public TankNewMessage(TankByHuman tank, int messageType) {
 		super(tank, messageType);
 	}
-	
-//	/**
-//	 * @param messageType
-//	 */
-//	public TankNewMessage(int messageType) {
-//		TankByHuman fakeTank = new TankByHuman(100,100,10,10, true, Color.BLACK, 100, null);
-//		super(fakeTank, messageType);
-//	}
 }

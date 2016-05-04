@@ -53,7 +53,14 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	public void encode(DataOutputStream dos) throws IOException {
 		dos.writeInt(tank.id);
 		dos.writeInt(messageType);
-		dos.writeInt(tank.keyEventCode);
+		if(messageType == TANK_KEYPRESSEDMESSAGE) {
+			dos.writeInt(tank.keyPressedCode);
+			dos.writeInt(tank.x);
+			dos.writeInt(tank.y);
+		} else if(messageType == TANK_KEYRELEASEDDMESSAGE) {
+			dos.writeInt(tank.keyReleasedCode);
+		}
+		
 		
 	}
 
@@ -61,7 +68,14 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	public void decode(DataInputStream dis) throws IOException {
 		tank.id = dis.readInt();
 		messageType = dis.readInt();
-		tank.keyEventCode = dis.readInt();
+		if(messageType == TANK_KEYPRESSEDMESSAGE) {
+			tank.keyPressedCode = dis.readInt();
+			tank.x = dis.readInt();
+			tank.y = dis.readInt();
+		} else if(messageType == TANK_KEYRELEASEDDMESSAGE) {
+			tank.keyReleasedCode = dis.readInt();
+		}
+		
 		
 	}
 

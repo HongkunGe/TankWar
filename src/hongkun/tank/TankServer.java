@@ -65,29 +65,6 @@ public class TankServer {
 		}
 	}
 	
-//	class MessageInfo {
-//		public int idReceived;
-//		public int messageType;
-//		
-//		public MessageInfo(int idReceived, int messageType) {
-//			this.idReceived = idReceived;
-//			this.messageType = messageType;
-//		}
-//	}
-//	
-//	/*
-//	 * A lightweight message decoder to obtain the client id and message type.
-//	 * */
-//	private MessageInfo getInfoByDatagramPacket(byte[] buf) throws IOException {
-//		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-//		DataInputStream dis = new DataInputStream(bais);
-//		int idReceived = dis.readInt();
-//		int messageType = dis.readInt();
-//		dis.close();
-//		bais.close();
-//		return new MessageInfo(idReceived, messageType);
-//	}
-	
 	public class UDPThread implements Runnable {
 
 		@Override
@@ -125,12 +102,13 @@ System.out.println("A packet received from Tank Client#" + TankMessage.decodeMes
 								ds.send(dp);
 							}
 						}						
-					} else if(messageInfo.messageType == TankMessage.TANK_KEYEVENTMESSAGE) {
+					} else if(messageInfo.messageType == TankMessage.TANK_KEYPRESSEDMESSAGE || messageInfo.messageType == TankMessage.TANK_KEYRELEASEDDMESSAGE) {
 						for(Iterator<HashMap.Entry<Integer,TankServer.Client>> it = clients.entrySet().iterator(); it.hasNext();) {
 							HashMap.Entry<Integer,TankServer.Client> client = it.next();
 							if(newlyAddedClientID != client.getKey()) {
 								dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
-								ds.send(dp);								
+								ds.send(dp);					
+//System.out.println("A packet sent to Tank Client#" + client.getKey() + " messageInfo.messageType = " + messageInfo.messageType);
 							}
 						}
 					}
