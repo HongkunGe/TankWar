@@ -65,12 +65,28 @@ public class TankServer {
 		}
 	}
 	
-	private int getIdByDatagramPacket(byte[] buf) throws IOException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-		DataInputStream dis = new DataInputStream(bais);
-		int idReceived = dis.readInt();
-		return idReceived;
-	}
+//	class MessageInfo {
+//		public int idReceived;
+//		public int messageType;
+//		
+//		public MessageInfo(int idReceived, int messageType) {
+//			this.idReceived = idReceived;
+//			this.messageType = messageType;
+//		}
+//	}
+//	
+//	/*
+//	 * A lightweight message decoder to obtain the client id and message type.
+//	 * */
+//	private MessageInfo getInfoByDatagramPacket(byte[] buf) throws IOException {
+//		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+//		DataInputStream dis = new DataInputStream(bais);
+//		int idReceived = dis.readInt();
+//		int messageType = dis.readInt();
+//		dis.close();
+//		bais.close();
+//		return new MessageInfo(idReceived, messageType);
+//	}
 	
 	public class UDPThread implements Runnable {
 
@@ -89,25 +105,36 @@ System.out.println("UDP Thread start in Client on port " + TankServer.UDP_PORT);
 					 * A new client is added.
 					 */
 					ds.receive(dp);
-					int idReceived = getIdByDatagramPacket(buf);
-System.out.println("A packet received from Tank Client#" + idReceived);
+					MessageInfo messageInfo = TankMessage.decodeMessageTop(buf);
+					int newlyAddedClientID = messageInfo.idReceived;
+System.out.println("A packet received from Tank Client#" + newlyAddedClientID);
+					if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE){
+						// Distribute: transfer the new tank received from one client to all other clients.
+						for(Iterator<HashMap.Entry<Integer,TankServer.Client>> it = clients.entrySet().iterator(); it.hasNext();) {
+							HashMap.Entry<Integer,TankServer.Client> client = it.next();
+							if(newlyAddedClientID != client.getKey()) {
+								dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
+								ds.send(dp);
 
-					// Distribute: transfer the new tank received from one client to all other clients.
-					for(Iterator<HashMap.Entry<Integer,TankServer.Client>> it = clients.entrySet().iterator(); it.hasNext();) {
-						HashMap.Entry<Integer,TankServer.Client> client = it.next();
-						if(idReceived != client.getKey()) {
-							dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
-							ds.send(dp);
-
-							// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
-							// don't need to care about the address when receiving a datagramPacket.
-							ds.receive(dp);
-System.out.println("A packet received from Tank Client#" + getIdByDatagramPacket(buf));
-							Client newClient = clients.get(idReceived);
-							dp.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
-							ds.send(dp);
+								// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
+								// don't need to care about the address when receiving a datagramPacket.
+								ds.receive(dp);
+System.out.println("A packet received from Tank Client#" + TankMessage.decodeMessageTop(buf).idReceived);
+								Client newClient = clients.get(newlyAddedClientID);
+								dp.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
+								ds.send(dp);
+							}
+						}						
+					} else if(messageInfo.messageType == TankMessage.TANK_KEYEVENTMESSAGE) {
+						for(Iterator<HashMap.Entry<Integer,TankServer.Client>> it = clients.entrySet().iterator(); it.hasNext();) {
+							HashMap.Entry<Integer,TankServer.Client> client = it.next();
+							if(newlyAddedClientID != client.getKey()) {
+								dp.setSocketAddress(new InetSocketAddress(client.getValue().getIPAdress(), client.getValue().getPort()));
+								ds.send(dp);								
+							}
 						}
 					}
+
 				}
 			} catch (SocketException | UnknownHostException e) {
 				e.printStackTrace();

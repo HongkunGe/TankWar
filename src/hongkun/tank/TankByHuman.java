@@ -5,6 +5,8 @@ import java.awt.event.*;
 
 public class TankByHuman extends Tank{
 	
+	public int keyEventCode = 0;
+	
 	public TankByHuman(int x, int y, int width, int height, boolean role, Color c, int life, ClientFrame clientFrame) {
 		super(x, y, width, height, role, c, life, clientFrame);
 	}
@@ -21,35 +23,58 @@ public class TankByHuman extends Tank{
 		this.yDir = originalTank.yDir;
 		this.xBarrelDirection = originalTank.xBarrelDirection;
 		this.yBarrelDirection = originalTank.yBarrelDirection;
+		this.keyEventCode = originalTank.keyEventCode;
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		int direction = e.getKeyCode();
+		int oldKeyEventCode = keyEventCode;
+		keyEventCode = e.getKeyCode();
+		
+		/*
+		 * Send key event as message to server and transfer the message to all other clients.
+		 * */
+		if(keyEventCode != oldKeyEventCode) {
+			TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYEVENTMESSAGE);
+			clientFrame.clientNetAgent.send(msg);
+		}
+		
+		// keyEventCode is updated.
+		keyPressedManager();
+	}
+	
+	public void onlineKeyPressed(int keyCodeReceivedOnline) {
+		keyEventCode = keyCodeReceivedOnline;
+		
+		// keyEventCode is updated.
+		keyPressedManager();
+	}
+	
+	private void keyPressedManager() {
 		Missle firedMissle = null;
 		Direction dir = null;
 		boolean isFireMissle = false;
 		
-		if(direction == KeyEvent.VK_UP) {
+		if(keyEventCode == KeyEvent.VK_UP) {
 			dir = DirectionGenerator.getDirection(Compass.U, TANK_STEP);
-		} else if(direction == KeyEvent.VK_DOWN) {
+		} else if(keyEventCode == KeyEvent.VK_DOWN) {
 			dir = DirectionGenerator.getDirection(Compass.D, TANK_STEP);
-		} else if(direction == KeyEvent.VK_LEFT) {
+		} else if(keyEventCode == KeyEvent.VK_LEFT) {
 			dir = DirectionGenerator.getDirection(Compass.L, TANK_STEP);
-		} else if(direction == KeyEvent.VK_RIGHT) {
+		} else if(keyEventCode == KeyEvent.VK_RIGHT) {
 			dir = DirectionGenerator.getDirection(Compass.R, TANK_STEP);
-		} else if(direction == KeyEvent.VK_F2){
+		} else if(keyEventCode == KeyEvent.VK_F2){
 			// restart
 			if(!this.isLive()) {
 				this.isLive = true;
 				this.life = 100;
 			}
 			return;
-		} else if(direction == KeyEvent.VK_NUMPAD5) {
+		} else if(keyEventCode == KeyEvent.VK_NUMPAD5) {
 			superFire();
 			return;
-		} else if(KeyEvent.VK_NUMPAD1 <= direction && direction <= KeyEvent.VK_NUMPAD9){
+		} else if(KeyEvent.VK_NUMPAD1 <= keyEventCode && keyEventCode <= KeyEvent.VK_NUMPAD9){
 			isFireMissle = true;
-			dir = DirectionGenerator.getDirection(direction - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
+			dir = DirectionGenerator.getDirection(keyEventCode - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
 		} else {
 			return;
 		}
@@ -77,6 +102,6 @@ public class TankByHuman extends Tank{
 
 		if(direction == KeyEvent.VK_UP || direction == KeyEvent.VK_DOWN || direction == KeyEvent.VK_LEFT || direction == KeyEvent.VK_RIGHT) {
 			xDir = yDir = 0;
-		}		
+		}
 	}
 }

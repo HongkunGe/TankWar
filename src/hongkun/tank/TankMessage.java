@@ -1,9 +1,12 @@
 package hongkun.tank;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
+
+//import hongkun.tank.TankServer.MessageInfo;
 
 public abstract class TankMessage {
 	public static final int TANK_MESSAGE_DECODE = 0;
@@ -27,4 +30,31 @@ public abstract class TankMessage {
 		this.messageType = messageType;
 	}
 	
+	public static MessageInfo decodeMessageTop(byte[] buf) throws IOException {
+		ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+		DataInputStream dis = new DataInputStream(bais);
+		int idReceived = dis.readInt();
+		int messageType = dis.readInt();
+		dis.close();
+		bais.close();
+		return new MessageInfo(idReceived, messageType);
+	}
+}
+
+class MessageInfo {
+	public int idReceived;
+	public int messageType;
+	
+	public MessageInfo(int idReceived, int messageType) {
+		this.idReceived = idReceived;
+		this.messageType = messageType;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "MessageInfo [idReceived=" + idReceived + ", messageType=" + messageType + "]";
+	}
 }

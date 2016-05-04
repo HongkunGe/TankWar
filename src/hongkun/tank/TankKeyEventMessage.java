@@ -52,25 +52,17 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	@Override
 	public void encode(DataOutputStream dos) throws IOException {
 		dos.writeInt(tank.id);
-		dos.writeInt(tank.x);
-		dos.writeInt(tank.y);
-		dos.writeInt(tank.xDir);
-		dos.writeInt(tank.yDir);
-		dos.writeInt(tank.xBarrelDirection);
-		dos.writeInt(tank.yBarrelDirection);
 		dos.writeInt(messageType);
+		dos.writeInt(tank.keyEventCode);
+		
 	}
 
 	@Override
 	public void decode(DataInputStream dis) throws IOException {
 		tank.id = dis.readInt();
-		tank.x = dis.readInt();
-		tank.y = dis.readInt();
-		tank.xDir = dis.readInt();
-		tank.yDir = dis.readInt();
-		tank.xBarrelDirection = dis.readInt();
-		tank.yBarrelDirection = dis.readInt();
 		messageType = dis.readInt();
+		tank.keyEventCode = dis.readInt();
+		
 	}
 
 	public TankKeyEventMessage(TankByHuman tank, int messageType) {

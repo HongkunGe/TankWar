@@ -1,5 +1,6 @@
 package hongkun.tank;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -51,6 +52,7 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	
 	public void encode(DataOutputStream dos) throws IOException{
 		dos.writeInt(tank.id);
+		dos.writeInt(messageType);
 		dos.writeInt(tank.x);
 		dos.writeInt(tank.y);
 		dos.writeInt(tank.xDir);
@@ -59,12 +61,12 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 		dos.writeInt(tank.xBarrelDirection);
 		dos.writeInt(tank.yBarrelDirection);
 		dos.writeBoolean(tank.role);
-		dos.writeBoolean(tank.isLive);
-		dos.writeInt(messageType);
+		dos.writeBoolean(tank.isLive);		
 	}
 	
 	public void decode(DataInputStream dis) throws IOException{
 		tank.id = dis.readInt();
+		messageType = dis.readInt();
 		tank.x = dis.readInt();
 		tank.y = dis.readInt();
 		tank.xDir = dis.readInt();
@@ -73,8 +75,7 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 		tank.xBarrelDirection = dis.readInt();
 		tank.yBarrelDirection = dis.readInt();
 		tank.role = dis.readBoolean();
-		tank.isLive = dis.readBoolean();
-		messageType = dis.readInt();
+		tank.isLive = dis.readBoolean();		
 	}
 	
 	public TankByHuman decodeAndNewTank(DataInputStream dis) throws IOException{
@@ -89,4 +90,12 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 	public TankNewMessage(TankByHuman tank, int messageType) {
 		super(tank, messageType);
 	}
+	
+//	/**
+//	 * @param messageType
+//	 */
+//	public TankNewMessage(int messageType) {
+//		TankByHuman fakeTank = new TankByHuman(100,100,10,10, true, Color.BLACK, 100, null);
+//		super(fakeTank, messageType);
+//	}
 }

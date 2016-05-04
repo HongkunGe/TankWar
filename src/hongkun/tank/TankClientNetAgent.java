@@ -4,7 +4,7 @@ import java.net.*;
 
 public class TankClientNetAgent {
 	
-	private static int UDP_PORT = 2225;
+	private static int UDP_PORT = 2230;
 	private ClientFrame clientFrame;
 	
 	/*
@@ -83,28 +83,39 @@ System.out.println("UDP Thread start in Client on port " + TankClientNetAgent.UD
 					ByteArrayInputStream bais = new ByteArrayInputStream(buf);
 					DataInputStream dis = new DataInputStream(bais);
 					
-					TankMessage msg = null;
-					msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
-					msg.decode(dis); // messageType will be decoded in this step.					
+					MessageInfo messageInfo = TankMessage.decodeMessageTop(buf); // messageType will be decoded in this step.
 					
-					if(msg.messageType == TankMessage.TANK_NEWMESSAGE) {
-						/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
-						 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
-						 * client by server.
-						 * */
+					TankMessage msg = null;
+					if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE || messageInfo.messageType == TankMessage.TANK_ALREADYMESSAGE) {
+						msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = msg.tank;
-						clientFrame.tanksByHumanOnline.add(newTankByHumanOnline);
+						clientFrame.tanksByHumanOnline.put(newTankByHumanOnline.id, newTankByHumanOnline);
+						
+						if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE) {
+							/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
+							 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
+							 * client by server.
+							 * */	
 System.out.println("A packet received from Tank Server to New a Tank#" + newTankByHumanOnline.id);
-						TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_ALREADYMESSAGE);
-						send(msgAlready);
+							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_ALREADYMESSAGE);
+							send(msgAlready);
 						
-					} else if(msg.messageType == TankMessage.TANK_ALREADYMESSAGE) {
-						TankByHuman newTankByHumanOnline = msg.tank;
-						clientFrame.tanksByHumanOnline.add(newTankByHumanOnline);
+						} else { 
+							/*
+							 * messageInfo.messageType == TankMessage.TANK_ALREADYMESSAGE, we only need to add the old tank to this newly added client.
+							 * */
+							clientFrame.tanksByHumanOnline.put(msg.tank.id, newTankByHumanOnline);
 System.out.println("A packet received from Tank Server to Add an old Tank#" + newTankByHumanOnline.id);	
-
-					} else if(msg.messageType == TankMessage.TANK_KEYEVENTMESSAGE) {
-						
+	
+						} 
+					}else if(messageInfo.messageType == TankMessage.TANK_KEYEVENTMESSAGE) {
+						msg = new TankKeyEventMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+						msg.decode(dis);
+						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
+System.out.println(messageInfo);
+System.out.println("Client#" + msg.tank.id + " keyEventCode Received------" + msg.tank.keyEventCode);
+						newTankByHumanOnline.onlineKeyPressed(msg.tank.keyEventCode);
 					}
 
 					
@@ -120,7 +131,7 @@ System.out.println("A packet received from Tank Server to Add an old Tank#" + ne
 		
 	}
 	
-	private void send(TankMessage msg) {
+	public void send(TankMessage msg) {
 		msg.send(datagramSocket, "127.0.0.1", TankServer.UDP_PORT);
 	}
 

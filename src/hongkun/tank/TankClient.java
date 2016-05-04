@@ -20,12 +20,13 @@ class ClientFrame extends Frame {
 	public static final int INTERVAL = 30; // ms
 	
 	public TankByHuman tank1 = new TankByHuman(500, 500, 30, 30, true, Color.RED, 100, this);
-	public ArrayList<TankByHuman> tanksByHumanOnline = new ArrayList<TankByHuman>();
+//	public ArrayList<TankByHuman> tanksByHumanOnline = new ArrayList<TankByHuman>();
+	public HashMap<Integer, TankByHuman> tanksByHumanOnline = new HashMap<Integer, TankByHuman>();
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
 	public ArrayList<TankByRobot> tankByRobots = new ArrayList<TankByRobot>();
 	public Wall wall = new Wall(this);
 	
-	private TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
+	public TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
 	
 	Image offScreenImage = null;
 	
@@ -59,8 +60,9 @@ class ClientFrame extends Frame {
 			tank1.draw(g);
 		}
 		
-		for(Iterator<TankByHuman> it = tanksByHumanOnline.iterator(); it.hasNext();) {
-			TankByHuman t = it.next();
+		for(Iterator<HashMap.Entry<Integer, TankByHuman>> it = tanksByHumanOnline.entrySet().iterator(); it.hasNext();) {
+			HashMap.Entry<Integer, TankByHuman> tankByHumanOnline = it.next();
+			TankByHuman t = tankByHumanOnline.getValue();
 			t.draw(g);
 			if(!t.isLive()) {
 				it.remove();
