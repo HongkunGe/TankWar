@@ -18,6 +18,8 @@ class ClientFrame extends Frame {
 	public static final int GAME_X_LOC = 400;
 	public static final int GAME_Y_LOC = 300;
 	public static final int INTERVAL = 30; // ms
+	private static final int DIALOG_X_LOC = GAME_X_LOC + GAME_WIDTH / 3;
+	private static final int DIALOG_Y_LOC = GAME_Y_LOC + GAME_HEIGHT / 3;
 	
 	public TankByHuman tank1 = new TankByHuman(500, 500, 30, 30, true, Color.RED, 100, this);
 //	public ArrayList<TankByHuman> tanksByHumanOnline = new ArrayList<TankByHuman>();
@@ -27,6 +29,7 @@ class ClientFrame extends Frame {
 	public Wall wall = new Wall(this);
 	
 	public TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
+	ConnectDialog dialog = new ConnectDialog();
 	
 	Image offScreenImage = null;
 	
@@ -49,7 +52,7 @@ class ClientFrame extends Frame {
 		
 		new Thread(new RepaintThread()).start();
 		
-		clientNetAgent.connect("127.0.0.1", TankServer.TCP_PORT);
+		this.dialog.setVisible(true);
 	}
 
 	@Override
@@ -128,6 +131,50 @@ class ClientFrame extends Frame {
 		}
 	}
 
+	class ConnectDialog extends Dialog {
+		Button button = new Button("OK");
+		TextField tfIP = new TextField("127.0.0.1", 12);
+		TextField tfTCPPort = new TextField("" + TankServer.TCP_PORT, 4);
+		TextField tfUDPPort = new TextField("2226", 4);
+		public ConnectDialog() {
+			super(ClientFrame.this, true);			
+			
+			this.setLayout(new FlowLayout());
+			this.add(new Label("IP:"));
+			this.add(tfIP);
+			
+			this.add(new Label("Port:"));
+			this.add(tfTCPPort);
+			
+			this.add(new Label("UDP Port:"));
+			this.add(tfUDPPort);
+			
+			this.add(button);
+			this.setLocation(DIALOG_X_LOC, DIALOG_Y_LOC);
+			
+			this.pack();
+			this.addWindowListener(new WindowAdapter() {
+				
+				@Override
+				public void windowClosing(WindowEvent e) {
+					setVisible(false);
+				}
+			});
+			
+			button.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String IP = ConnectDialog.this.tfIP.getText().trim();
+					int port = Integer.parseInt(ConnectDialog.this.tfTCPPort.getText().trim());
+					int UDPport = Integer.parseInt(ConnectDialog.this.tfUDPPort.getText().trim());
+					TankClientNetAgent.setUDP_PORT(UDPport);
+					clientNetAgent.connect(IP, port);
+					setVisible(false);
+				}
+			});
+		}
+	}
 	@Override
 	public void update(Graphics g) {
 		if(offScreenImage == null) {

@@ -4,7 +4,7 @@ import java.net.*;
 
 public class TankClientNetAgent {
 	
-	private static int UDP_PORT = 2226;
+	private static int UDP_PORT = 2229;
 	private ClientFrame clientFrame;
 	
 	/*
@@ -14,6 +14,9 @@ public class TankClientNetAgent {
 	
 	public TankClientNetAgent(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
+	}
+	
+	public void connect(String IP, int PORT) {		
 		
 		//If set InetAddress.getLocalHost() here, Package cannot be received. 
 		try {
@@ -21,9 +24,6 @@ public class TankClientNetAgent {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void connect(String IP, int PORT) {		
 		
 		Socket socket = null;
 		try {
@@ -142,5 +142,12 @@ System.out.println(printID + " keyReleasedEventCode Received------" + msg.tank.k
 	 */
 	public static int getUDP_PORT() {
 		return UDP_PORT;
+	}
+
+	/**
+	 * @param uDP_PORT the uDP_PORT to set
+	 */
+	public static void setUDP_PORT(int uDP_PORT) {
+		UDP_PORT = uDP_PORT;
 	}
 }

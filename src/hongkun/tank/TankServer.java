@@ -72,6 +72,9 @@ public class TankServer {
 			byte[] buf = new byte[1024]; // 1k
 			DatagramSocket ds = null;
 			DatagramPacket dpToAddNewClients = new DatagramPacket(buf, buf.length);
+			
+			byte[] bufToAddOldClients = new byte[1024];
+			DatagramPacket dpToAddOldClients = new DatagramPacket(bufToAddOldClients, bufToAddOldClients.length);
 			try {
 				//If set InetAddress.getLocalHost() here, an exception will be raised.  Cannot assign requested address: Datagram send failed.
 				ds = new DatagramSocket(TankServer.UDP_PORT);
@@ -89,6 +92,7 @@ System.out.println("A packet received from Tank Client#" + newlyAddedClientID + 
 
 					for(HashMap.Entry<Integer,TankServer.Client> client: clients.entrySet()) {
 						if(newlyAddedClientID != client.getKey()) {
+							
 							/*
 							 * messageInfo.messageType == TankMessage.TANK_NEWMESSAGE || 
 							 * messageInfo.messageType == TankMessage.TANK_KEYPRESSEDMESSAGE || 
@@ -100,15 +104,14 @@ System.out.println("A packet received from Tank Client#" + newlyAddedClientID + 
 System.out.println("A packet sent to Tank Client#" + client.getKey() + " messageInfo.messageType = " + messageInfo.messageType);
 							
 							if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE){
-								// Collect: Wait for the reply of already existing clients, notify newly added clients about the info of old clients.
-								// don't need to care about the address when receiving a datagramPacket.								
-								byte[] bufToAddOldClients = new byte[1024];
-								DatagramPacket dpToAddOldClients = new DatagramPacket(bufToAddOldClients, bufToAddOldClients.length);
+								// Collect: Wait for the reply of already existing clients, then notify newly added clients about the info of old clients.
+								// don't need to care about the address when receiving a datagramPacket.
 								ds.receive(dpToAddOldClients);
 								
 								MessageInfo m1 = TankMessage.decodeMessageTop(buf);
 System.out.println("A packet received from Tank Client#" + m1.idReceived + " message type: " + TankMessage.printMessageType(m1.messageType));
 								
+								// Notify newly added clients about the info of old clients.
 								Client newClient = clients.get(newlyAddedClientID);
 								dpToAddOldClients.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
 								ds.send(dpToAddOldClients);
@@ -153,7 +156,6 @@ System.out.println("A packet received from Tank Client#" + m1.idReceived + " mes
 				dos.writeInt(id++);
 				
 System.out.println("#" + (id - 1) + " Connected! TCP Address: " + socket.getInetAddress() + ":" + socket.getPort() + "----UDP HOST Address: " + ipAddress + ":" + udpPort);
-System.out.println(clients);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
