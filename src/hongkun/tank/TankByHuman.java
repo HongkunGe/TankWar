@@ -113,7 +113,7 @@ public class TankByHuman extends Tank{
 		keyReleasedManager();
 		
 		if(this.isValidKey) {
-			TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYRELEASEDDMESSAGE);
+			TankMessage msg = new TankKeyEventMessage(this, TankMessage.TANK_KEYRELEASEDMESSAGE);
 			clientFrame.clientNetAgent.send(msg);
 			afterRelease = true;
 		}		
@@ -132,8 +132,10 @@ public class TankByHuman extends Tank{
 		}
 	}
 
-	public void setXY(int x, int y) {
+	public void setXY(int x, int y, int xDir, int yDir) {
 		this.x = x;
 		this.y = y;
+		this.xDir = xDir;
+		this.yDir = yDir;
 	}
 }

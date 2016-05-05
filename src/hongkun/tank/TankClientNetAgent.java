@@ -37,7 +37,7 @@ System.out.println("TCP Connected to server! Server IP Address: " + IP + " Port:
 			
 			DataInputStream dis = new DataInputStream(socket.getInputStream());
 			int id = dis.readInt();
-			clientFrame.tank1.id = id;
+			clientFrame.tank0.id = id;
 System.out.println("Server Replied and Gave me an ID: " + id);
 			dos.close();
 		} catch (UnknownHostException e) {
@@ -57,7 +57,7 @@ System.out.println("Server Replied and Gave me an ID: " + id);
 		/* When TCP connection is finished, we send the tank creation data to server, 
 		 *   Using UDP. 
 		 */
-		TankNewMessage msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_NEWMESSAGE);
+		TankNewMessage msg = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_NEWMESSAGE);
 		send(msg);
 		
 		
@@ -84,10 +84,10 @@ System.out.println("UDP Thread start in Client on port " + TankClientNetAgent.UD
 					DataInputStream dis = new DataInputStream(bais);
 					
 					MessageInfo messageInfo = TankMessage.decodeMessageTop(buf); // messageType will be decoded in this step.
-String printID = "Client#" + clientFrame.tank1.id + ": ";
+String printID = "Client#" + clientFrame.tank0.id + ": ";
 					TankMessage msg = null;
 					if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE || messageInfo.messageType == TankMessage.TANK_ALREADYMESSAGE) {
-						msg = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+						msg = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
 						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = msg.tank;
 						clientFrame.tanksByHumanOnline.put(newTankByHumanOnline.id, newTankByHumanOnline);
@@ -97,7 +97,7 @@ String printID = "Client#" + clientFrame.tank1.id + ": ";
 							 * client by server.
 							 * */	
 System.out.println(printID + "A packet received from Tank Server to Add a new Tank from Client#" + newTankByHumanOnline.id);
-							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank1, TankMessage.TANK_ALREADYMESSAGE);
+							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_ALREADYMESSAGE);
 							send(msgAlready);
 						
 						} else { 
@@ -108,19 +108,23 @@ System.out.println(printID + "A packet received from Tank Server to Add a new Ta
 System.out.println(printID + "A packet received from Tank Server to Add an old Tank from Client#" + newTankByHumanOnline.id);	
 	
 						} 
+						
 					} else if(messageInfo.messageType == TankMessage.TANK_KEYPRESSEDMESSAGE) {
-						msg = new TankKeyEventMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+						msg = new TankKeyEventMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
 						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
 System.out.println(printID + " keyPressedEventCode Received------" + msg.tank.keyPressedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyPressed(msg.tank.keyPressedCode);
-						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y);
-					} else if(messageInfo.messageType == TankMessage.TANK_KEYRELEASEDDMESSAGE) {
-						msg = new TankKeyEventMessage(clientFrame.tank1, TankMessage.TANK_MESSAGE_DECODE);
+						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y, msg.tank.xDir, msg.tank.yDir);
+						
+					} else if(messageInfo.messageType == TankMessage.TANK_KEYRELEASEDMESSAGE) {
+						msg = new TankKeyEventMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
 						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
 System.out.println(printID + " keyReleasedEventCode Received------" + msg.tank.keyReleasedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyReleased(msg.tank.keyReleasedCode);
+//						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y, msg.tank.xDir, msg.tank.yDir);
+						
 					}
 				}
 			} catch (SocketException | UnknownHostException e) {

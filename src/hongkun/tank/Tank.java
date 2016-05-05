@@ -40,16 +40,17 @@ public class Tank extends ObjectInTankWar{
 		
 		x += xDir;
 		y += yDir;
-		
+			
 		if(x < 0) x = 0;
 		if(y < 20) y = 20;
 		if(x > ClientFrame.GAME_WIDTH - TankByHuman.TANK_WIDTH) x = ClientFrame.GAME_WIDTH - TankByHuman.TANK_WIDTH;
 		if(y > ClientFrame.GAME_HEIGHT - TankByHuman.TANK_HEIGHT) y = ClientFrame.GAME_HEIGHT - TankByHuman.TANK_HEIGHT;
 		
+		
 		// Tanks hit wall or two tanks in the same team ram into each other, they stay here.
 		if(clientFrame.wall.isHitByObject(this) || isRamByTeamTank()) {
 			x -= xDir;
-			y -= yDir;
+			y -= yDir;			
 		}
 		
 		for(Iterator<Missle> it = barrel.iterator(); it.hasNext();) {
@@ -60,7 +61,7 @@ public class Tank extends ObjectInTankWar{
 				continue;
 			}
 			
-			// hit tanks	
+			// hit tanks
 			if(this.role) {
 				for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
 					TankByRobot et = itEt.next();
@@ -70,8 +71,8 @@ public class Tank extends ObjectInTankWar{
 					}
 				}
 			} else {
-				if(firedMissle.hitTank(clientFrame.tank1) && clientFrame.tank1.isLive()) {
-					clientFrame.tank1.isHitByMissle(firedMissle);
+				if(firedMissle.hitTank(clientFrame.tank0) && clientFrame.tank0.isLive()) {
+					clientFrame.tank0.isHitByMissle(firedMissle);
 					it.remove();
 				}
 			}
@@ -88,19 +89,33 @@ public class Tank extends ObjectInTankWar{
 	
 	public boolean isRamByTeamTank() {
 		boolean isRam = false;
-		if(this.role) {
-			// TODO
-		} else {
-			for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
-				TankByRobot et = itEt.next();
-				if(et == this)
-					continue;
-				isRam = isRam || isRamByOtherTank(et);
+		
+		// this tank are not ram into other tankByRoots.
+		for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
+			TankByRobot et = itEt.next();
+			if(et == this)
+				continue;
+			isRam = isRam || isRamByOtherTank(et);
+			if(isRam) {
+				return true;
+			}
+		}
+		
+		// this tank are not ram into other tankByHumans.
+		for(HashMap.Entry<Integer, TankByHuman> tankByHuman: this.clientFrame.tanksByHumanOnline.entrySet()) {
+			if(tankByHuman.getKey() != this.id){
+				isRam = isRam || isRamByOtherTank(tankByHuman.getValue());
 				if(isRam) {
-					break;
+					return true;
 				}
 			}
 		}
+		
+		// When otherTankByHumanOnline is moving, we should detect if it will ram into the tank0.
+		if(this.clientFrame.tanksByHumanOnline.containsKey(this.id)) {
+			isRam = isRam || isRamByOtherTank(clientFrame.tank0);
+		}
+
 		return isRam;
 	}
 	

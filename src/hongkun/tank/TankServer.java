@@ -1,12 +1,9 @@
 package hongkun.tank;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.HashMap;
 
 public class TankServer {
@@ -19,52 +16,7 @@ public class TankServer {
 	// store all clients' ip and udpPort for data distribution.
 	private HashMap<Integer, Client> clients = new HashMap<Integer, Client>();
 	private int id = CLIENT_ID_START;
-	
-	class Client {
-		private String IPAdress;
-		private int port;
-		private int id;
 		
-		/**
-		 * @return the iPAdress
-		 */
-		public String getIPAdress() {
-			return IPAdress;
-		}
-		
-		/**
-		 * @return the port
-		 */
-		public int getPort() {
-			return port;
-		}
-	
-		/**
-		 * @param iPAdress
-		 * @param port
-		 */
-		public Client(String iPAdress, int port, int id) {
-			this.IPAdress = iPAdress;
-			this.port = port;
-			this.id = id;
-		}
-
-		/**
-		 * @return the id
-		 */
-		public int getId() {
-			return id;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			return "Client [IPAdress=" + IPAdress + ", port=" + port + ", id=" + id + "]";
-		}
-	}
-	
 	public class UDPThread implements Runnable {
 
 		@Override
@@ -126,6 +78,7 @@ System.out.println("A packet received from Tank Client#" + m1.idReceived + " mes
 			}
 		}
 	}
+	
 	public void start() {
 		
 		// UDP listener
@@ -178,6 +131,51 @@ System.out.println("#" + (id - 1) + " Connected! TCP Address: " + socket.getInet
 		}
 	}
 	
+	class Client {
+		private String IPAdress;
+		private int port;
+		private int id;
+		
+		/**
+		 * @return the iPAdress
+		 */
+		public String getIPAdress() {
+			return IPAdress;
+		}
+		
+		/**
+		 * @return the port
+		 */
+		public int getPort() {
+			return port;
+		}
+	
+		/**
+		 * @param iPAdress
+		 * @param port
+		 */
+		public Client(String iPAdress, int port, int id) {
+			this.IPAdress = iPAdress;
+			this.port = port;
+			this.id = id;
+		}
+
+		/**
+		 * @return the id
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "Client [IPAdress=" + IPAdress + ", port=" + port + ", id=" + id + "]";
+		}
+	}
+
 	public static void main(String[] args) {
 		new TankServer().start();
 	}

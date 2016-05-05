@@ -1,10 +1,16 @@
 package hongkun.tank;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 //import hongkun.tank.TankServer.MessageInfo;
 
@@ -13,12 +19,42 @@ public abstract class TankMessage {
 	public static final int TANK_NEWMESSAGE = 1;
 	public static final int TANK_ALREADYMESSAGE = 2;
 	public static final int TANK_KEYPRESSEDMESSAGE = 3;
-	public static final int TANK_KEYRELEASEDDMESSAGE = 4;
+	public static final int TANK_KEYRELEASEDMESSAGE = 4;
+	public static final int TANK_EVENTMESSAGE = 5;
 	
 	TankByHuman tank;
 	int messageType;
 	
-	public abstract void send(DatagramSocket datagramSocket, String IP, int port);
+	public void send(DatagramSocket datagramSocket, String IP, int port) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		
+		// encode the sending data of a new tank.
+		try {
+			encode(dos);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		
+		byte[] sentTankData = baos.toByteArray();
+		DatagramPacket dp = null;
+		
+		try {
+			dp = new DatagramPacket(sentTankData, sentTankData.length,
+			        new InetSocketAddress(InetAddress.getLocalHost(), TankServer.UDP_PORT));
+			
+			datagramSocket.send(dp);
+System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.getUDP_PORT() + " A packet sent to server");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public abstract void encode(DataOutputStream dos) throws IOException;
 	public abstract void decode(DataInputStream dis) throws IOException;
 	
@@ -56,7 +92,7 @@ public abstract class TankMessage {
 		case TANK_KEYPRESSEDMESSAGE:
 			printtedType =  "TANK_KEYPRESSEDMESSAGE";
 			break;
-		case TANK_KEYRELEASEDDMESSAGE:
+		case TANK_KEYRELEASEDMESSAGE:
 			printtedType =  "TANK_KEYRELEASEDDMESSAGE";
 			break;
 		}

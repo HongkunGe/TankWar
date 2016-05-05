@@ -1,49 +1,10 @@
 package hongkun.tank;
 
-import java.awt.Color;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 public class TankNewMessage extends TankMessage{
-	
-	public void send(DatagramSocket datagramSocket, String udpIP, int udpPort) {
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		
-		// encode the sending data of a new tank.
-		try {
-			encode(dos);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		
-		byte[] sentTankData = baos.toByteArray();
-		DatagramPacket dp = null;
-		
-		try {
-			dp = new DatagramPacket(sentTankData, sentTankData.length,
-			        new InetSocketAddress(InetAddress.getLocalHost(), TankServer.UDP_PORT));
-			
-			datagramSocket.send(dp);
-System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.getUDP_PORT() + " A packet sent to server");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public void encode(DataOutputStream dos) throws IOException{
 		dos.writeInt(tank.id);

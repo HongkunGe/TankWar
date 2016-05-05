@@ -3,7 +3,6 @@ package hongkun.tank;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 
 
 public class TankClient {
@@ -20,9 +19,10 @@ class ClientFrame extends Frame {
 	public static final int INTERVAL = 30; // ms
 	private static final int DIALOG_X_LOC = GAME_X_LOC + GAME_WIDTH / 3;
 	private static final int DIALOG_Y_LOC = GAME_Y_LOC + GAME_HEIGHT / 3;
+	private static final int INITIAL_TANK_X_LOC = 200;
+	private static final int INITIAL_TANK_Y_LOC = 100;
 	
-	public TankByHuman tank1 = new TankByHuman(500, 500, 30, 30, true, Color.RED, 100, this);
-//	public ArrayList<TankByHuman> tanksByHumanOnline = new ArrayList<TankByHuman>();
+	public TankByHuman tank0 = new TankByHuman(-100, -100, 30, 30, true, Color.RED, 100, this);;
 	public HashMap<Integer, TankByHuman> tanksByHumanOnline = new HashMap<Integer, TankByHuman>();
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
 	public ArrayList<TankByRobot> tankByRobots = new ArrayList<TankByRobot>();
@@ -32,6 +32,8 @@ class ClientFrame extends Frame {
 	ConnectDialog dialog = new ConnectDialog();
 	
 	Image offScreenImage = null;
+	
+	Thread paintThread = new Thread(new RepaintThread());
 	
 	public ClientFrame() {
 		super("TankClient");
@@ -50,8 +52,6 @@ class ClientFrame extends Frame {
 		this.setResizable(false);
 		this.setBackground(Color.gray);
 		
-		new Thread(new RepaintThread()).start();
-		
 		this.dialog.setVisible(true);
 	}
 
@@ -59,8 +59,8 @@ class ClientFrame extends Frame {
 	public void paint(Graphics g) {
 		
 		wall.draw(g);
-		if(tank1.isLive()) {
-			tank1.draw(g);
+		if(tank0.isLive()) {
+			tank0.draw(g);
 		}
 		
 		for(Iterator<HashMap.Entry<Integer, TankByHuman>> it = tanksByHumanOnline.entrySet().iterator(); it.hasNext();) {
@@ -83,8 +83,8 @@ class ClientFrame extends Frame {
 		Color cOriginal = g.getColor();
 		g.setColor(Color.BLACK);
 		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
-		g.drawString("Tanks Count: " + tankByRobots.size(), 10, 60);
-		g.drawString("Tank Life: " + tank1.life, 10, 80);
+		g.drawString("Player Count: " + tanksByHumanOnline.size(), 10, 60);
+		g.drawString("Tank Life: " + tank0.life, 10, 80);
 		g.setColor(cOriginal);
 		
 		for(Iterator<Explosion> it = explosionEvents.iterator(); it.hasNext();) {
@@ -115,12 +115,12 @@ class ClientFrame extends Frame {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			tank1.keyPressed(e);
+			tank0.keyPressed(e);
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			tank1.keyReleased(e);
+			tank0.keyReleased(e);
 		}
 	}
 	
@@ -153,13 +153,6 @@ class ClientFrame extends Frame {
 			this.setLocation(DIALOG_X_LOC, DIALOG_Y_LOC);
 			
 			this.pack();
-			this.addWindowListener(new WindowAdapter() {
-				
-				@Override
-				public void windowClosing(WindowEvent e) {
-					setVisible(false);
-				}
-			});
 			
 			button.addActionListener(new ActionListener() {
 				
@@ -169,12 +162,17 @@ class ClientFrame extends Frame {
 					int port = Integer.parseInt(ConnectDialog.this.tfTCPPort.getText().trim());
 					int UDPport = Integer.parseInt(ConnectDialog.this.tfUDPPort.getText().trim());
 					TankClientNetAgent.setUDP_PORT(UDPport);
-					clientNetAgent.connect(IP, port);
+					
 					setVisible(false);
+					
+					ClientFrame.this.clientNetAgent.connect(IP, port);
+					ClientFrame.this.tank0.setXY(INITIAL_TANK_X_LOC, INITIAL_TANK_Y_LOC * ClientFrame.this.tank0.id, 0, 0);
+					ClientFrame.this.paintThread.start();
 				}
 			});
 		}
 	}
+	
 	@Override
 	public void update(Graphics g) {
 		if(offScreenImage == null) {
