@@ -40,6 +40,28 @@ public abstract class TankMessage {
 		bais.close();
 		return new MessageInfo(idReceived, messageType);
 	}
+	
+	public static String printMessageType(int mt) {
+		String printtedType = "";
+		switch(mt) {
+		case TANK_MESSAGE_DECODE:
+			printtedType =  "TANK_MESSAGE_DECODE";
+			break;
+		case TANK_NEWMESSAGE:
+			printtedType =  "TANK_NEWMESSAGE";
+			break;
+		case TANK_ALREADYMESSAGE:
+			printtedType =  "TANK_ALREADYMESSAGE";
+			break;
+		case TANK_KEYPRESSEDMESSAGE:
+			printtedType =  "TANK_KEYPRESSEDMESSAGE";
+			break;
+		case TANK_KEYRELEASEDDMESSAGE:
+			printtedType =  "TANK_KEYRELEASEDDMESSAGE";
+			break;
+		}
+		return printtedType.toLowerCase();
+	}
 }
 
 class MessageInfo {

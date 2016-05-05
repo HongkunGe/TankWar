@@ -4,7 +4,7 @@ import java.net.*;
 
 public class TankClientNetAgent {
 	
-	private static int UDP_PORT = 2228;
+	private static int UDP_PORT = 2226;
 	private ClientFrame clientFrame;
 	
 	/*
