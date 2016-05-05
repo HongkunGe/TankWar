@@ -19,8 +19,8 @@ class ClientFrame extends Frame {
 	public static final int INTERVAL = 30; // ms
 	private static final int DIALOG_X_LOC = GAME_X_LOC + GAME_WIDTH / 3;
 	private static final int DIALOG_Y_LOC = GAME_Y_LOC + GAME_HEIGHT / 3;
-	private static final int INITIAL_TANK_X_LOC = 200;
-	private static final int INITIAL_TANK_Y_LOC = 100;
+	public static final int INITIAL_TANK_X_LOC = 200;
+	public static final int INITIAL_TANK_Y_LOC = 60;
 	
 	public TankByHuman tank0 = new TankByHuman(-100, -100, 30, 30, true, Color.RED, 100, this);;
 	public HashMap<Integer, TankByHuman> tanksByHumanOnline = new HashMap<Integer, TankByHuman>();

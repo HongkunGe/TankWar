@@ -90,7 +90,9 @@ String printID = "Client#" + clientFrame.tank0.id + ": ";
 						msg = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
 						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = msg.tank;
+						newTankByHumanOnline.setXY(ClientFrame.INITIAL_TANK_X_LOC, ClientFrame.INITIAL_TANK_Y_LOC * newTankByHumanOnline.id, 0, 0);
 						clientFrame.tanksByHumanOnline.put(newTankByHumanOnline.id, newTankByHumanOnline);
+						
 						if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE) {
 							/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
 							 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
