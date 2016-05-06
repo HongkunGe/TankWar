@@ -17,7 +17,7 @@ public class TankNewMessage extends TankMessage{
 		dos.writeInt(tank.xBarrelDirection);
 		dos.writeInt(tank.yBarrelDirection);
 		dos.writeBoolean(tank.role);
-		dos.writeBoolean(tank.isLive);		
+//		dos.writeBoolean(tank.isLive);		
 	}
 	
 	public void decode(DataInputStream dis) throws IOException{
@@ -31,7 +31,7 @@ public class TankNewMessage extends TankMessage{
 		tank.xBarrelDirection = dis.readInt();
 		tank.yBarrelDirection = dis.readInt();
 		tank.role = dis.readBoolean();
-		tank.isLive = dis.readBoolean();		
+//		tank.isLive = dis.readBoolean();		
 	}
 	
 	public TankByHuman decodeAndNewTank(DataInputStream dis) throws IOException{

@@ -72,7 +72,7 @@ public class TankByHuman extends Tank{
 		} else if(keyPressedCode == KeyEvent.VK_F2){
 			// restart
 			if(!this.isLive()) {
-				this.isLive = true;
+//				this.isLive = true;
 				this.life = 100;
 			}
 			return false;

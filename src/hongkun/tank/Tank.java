@@ -8,10 +8,10 @@ public class Tank extends ObjectInTankWar{
 	public static final int MISSLE_STEP = 10;
 	public static final int TANK_WIDTH = 30;
 	public static final int TANK_HEIGHT = 30;
-	
+	public static final int WHOLE_LIFE = 100;
 	int id = 0;
-	boolean role, isLive;
-	int life, wholeLife;
+	boolean role;
+	int life, wholeLife = WHOLE_LIFE;
 	int xBarrelDirection, yBarrelDirection;
 	ArrayList<Missle> barrel = new ArrayList<Missle>();
 	
@@ -103,9 +103,9 @@ public class Tank extends ObjectInTankWar{
 	public void isHitByMissle(Missle firedMissle) {
 		this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
 		this.life -= Missle.LIFE_MINUS_PER_HIT;
-		if(this.life <= 0) {
-			this.isLive = false;
-		}
+//		if(this.life <= 0) {
+//			this.isLive = false;
+//		}
 	}
 	
 	public boolean isRamByTeamTank() {
@@ -161,7 +161,8 @@ public class Tank extends ObjectInTankWar{
 			g.setColor(Color.YELLOW);
 			g.drawRect(x, y - 10, TANK_WIDTH / 2, 6);
 			
-			int widthOfBlood = TANK_WIDTH / 2 * life / wholeLife;
+			int widthOfBlood = (TANK_WIDTH / 2 * life) / wholeLife;
+			
 			g.setColor(Color.RED);
 			g.fillRect(x, y - 9, widthOfBlood, 5);
 			g.setColor(cOriginal);
@@ -180,8 +181,7 @@ public class Tank extends ObjectInTankWar{
 		super(x, y, width, height ,0 ,0 ,c);
 		
 		this.life = life;
-		this.wholeLife = life;
-		this.isLive = true;
+		this.wholeLife = WHOLE_LIFE;
 		this.role = role;
 		this.xBarrelDirection = 0;
 		this.yBarrelDirection = TankByHuman.TANK_HEIGHT / 2;
@@ -205,7 +205,7 @@ public class Tank extends ObjectInTankWar{
 	 * @return the isLive
 	 */
 	public boolean isLive() {
-		return isLive;
+		return this.life > 0;
 	}
 
 	/**
@@ -213,6 +213,13 @@ public class Tank extends ObjectInTankWar{
 	 */
 	public void setRole(boolean role) {
 		this.role = role;
+	}
+
+	/**
+	 * @return the life
+	 */
+	public int getLife() {
+		return life;
 	}
 }
 

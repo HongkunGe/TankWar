@@ -59,7 +59,7 @@ class ClientFrame extends Frame {
 	public void paint(Graphics g) {
 		
 		wall.draw(g);
-		if(tank0.isLive()) {
+		if(tank0.getLife() > 0) {
 			tank0.draw(g);
 		}
 		
@@ -67,7 +67,7 @@ class ClientFrame extends Frame {
 			HashMap.Entry<Integer, TankByHuman> tankByHumanOnline = it.next();
 			TankByHuman t = tankByHumanOnline.getValue();
 			
-			if(t.isLive()) {
+			if(t.getLife() > 0) {
 				t.draw(g);
 			}
 		}
@@ -75,7 +75,7 @@ class ClientFrame extends Frame {
 		for(Iterator<TankByRobot> itEt = tankByRobots.iterator(); itEt.hasNext();) {
 			TankByRobot et = itEt.next();
 			
-			if(et.isLive()) {
+			if(et.getLife() > 0) {
 				et.draw(g);
 			}
 		}
