@@ -135,7 +135,7 @@ public class TankByHuman extends Tank{
 		}
 	}
 
-	public void setLocationDirection(int xDir, int yDir) {
+	public void setInitialLocationDirection(int xDir, int yDir) {
 		if(this.role) {
 			this.x = ClientFrame.INITIAL_TANK_X_LEFT_LOC;
 			this.y = this.id * ClientFrame.INITIAL_TANK_Y_LOC;
@@ -143,6 +143,13 @@ public class TankByHuman extends Tank{
 			this.x = ClientFrame.INITIAL_TANK_X_RIGHT_LOC;
 			this.y = this.id * ClientFrame.INITIAL_TANK_Y_LOC;
 		}
+		this.xDir = xDir;
+		this.yDir = yDir;
+	}
+	
+	public void setXY(int x, int y, int xDir, int yDir) {
+		this.x = x;
+		this.y = y;
 		this.xDir = xDir;
 		this.yDir = yDir;
 	}

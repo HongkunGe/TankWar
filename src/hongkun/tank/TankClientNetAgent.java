@@ -101,7 +101,7 @@ String printID = "Client#" + clientFrame.tank0.id + ": ";
 							 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
 							 * client by server.
 							 * */	
-							newTankByHumanOnline.setLocationDirection(0, 0);
+							newTankByHumanOnline.setInitialLocationDirection(0, 0);
 System.out.println(printID + "A packet received from Tank Server to Add a new Tank from Client#" + newTankByHumanOnline.id);
 							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_ALREADYMESSAGE);
 							send(msgAlready);
@@ -121,7 +121,7 @@ System.out.println(printID + "A packet received from Tank Server to Add an old T
 						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
 System.out.println(printID + " keyPressedEventCode Received------" + msg.tank.keyPressedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyPressed(msg.tank.keyPressedCode);
-						newTankByHumanOnline.setLocationDirection(msg.tank.xDir, msg.tank.yDir);
+						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y, msg.tank.xDir, msg.tank.yDir);
 						
 					} else if(messageInfo.messageType == TankMessage.TANK_KEYRELEASEDMESSAGE) {
 						msg = new TankKeyEventMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);

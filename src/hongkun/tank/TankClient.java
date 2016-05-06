@@ -188,7 +188,7 @@ System.out.println("Client#" + ClientFrame.this.tank0.id + " : A quitting messag
 					
 					ClientFrame.this.teamStatistics(role.equals("a"), 1);
 					ClientFrame.this.clientNetAgent.connect(IP, port);
-					ClientFrame.this.tank0.setLocationDirection(0, 0);
+					ClientFrame.this.tank0.setInitialLocationDirection(0, 0);
 					ClientFrame.this.paintThread.start();
 				}
 			});
