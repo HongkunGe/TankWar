@@ -19,8 +19,9 @@ class ClientFrame extends Frame {
 	public static final int INTERVAL = 30; // ms
 	private static final int DIALOG_X_LOC = GAME_X_LOC + GAME_WIDTH / 3;
 	private static final int DIALOG_Y_LOC = GAME_Y_LOC + GAME_HEIGHT / 3;
-	public static final int INITIAL_TANK_X_LOC = 200;
-	public static final int INITIAL_TANK_Y_LOC = 60;
+	public static final int INITIAL_TANK_X_LEFT_LOC = 40;
+	public static final int INITIAL_TANK_X_RIGHT_LOC = 750;
+	public static final int INITIAL_TANK_Y_LOC = 35;
 	
 	public TankByHuman tank0 = new TankByHuman(-100, -100, 30, 30, false, Color.RED, 100, this);;
 	public HashMap<Integer, TankByHuman> tanksByHumanOnline = new HashMap<Integer, TankByHuman>();
@@ -30,6 +31,8 @@ class ClientFrame extends Frame {
 	
 	public TankClientNetAgent clientNetAgent = new TankClientNetAgent(this);
 	ConnectDialog dialog = new ConnectDialog();
+	
+	public int teamACount = 0, teamBCount = 0;
 	
 	Image offScreenImage = null;
 	
@@ -59,31 +62,27 @@ class ClientFrame extends Frame {
 	public void paint(Graphics g) {
 		
 		wall.draw(g);
-		if(tank0.getLife() > 0) {
-			tank0.draw(g);
-		}
+		tank0.draw(g);
 		
 		for(Iterator<HashMap.Entry<Integer, TankByHuman>> it = tanksByHumanOnline.entrySet().iterator(); it.hasNext();) {
 			HashMap.Entry<Integer, TankByHuman> tankByHumanOnline = it.next();
 			TankByHuman t = tankByHumanOnline.getValue();
 			
-			if(t.getLife() > 0) {
-				t.draw(g);
-			}
+			t.draw(g);
 		}
 		
 		for(Iterator<TankByRobot> itEt = tankByRobots.iterator(); itEt.hasNext();) {
 			TankByRobot et = itEt.next();
 			
-			if(et.getLife() > 0) {
-				et.draw(g);
-			}
+			et.draw(g);
 		}
 		
 		Color cOriginal = g.getColor();
 		g.setColor(Color.BLACK);
 //		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
-		g.drawString("Player Count: " + tanksByHumanOnline.size(), 10, 40);
+		g.drawString("Team A Count: " + teamACount, 10, 40);
+		g.drawString("Team B Count: " + teamBCount, 680, 40);
+		g.drawString("Player Count: " + (tanksByHumanOnline.size() + (tank0.isLive() ? 1: 0)), 680, 60);
 		g.drawString("#" + this.tank0.id + " Tank Life: " + tank0.life, 10, 60);
 		
 		g.drawString("----------------", 10, 80);
@@ -133,6 +132,11 @@ class ClientFrame extends Frame {
 	
 	class WindowMonitor extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
+			
+			// send server the message that I am going to quit
+			TankMessage msg = new TankKeyEventMessage(ClientFrame.this.tank0, TankMessage.TANK_QUITMESSAGE);
+			clientNetAgent.send(msg);
+System.out.println("Client#" + ClientFrame.this.tank0.id + " : A quitting message sent to server.");
 			setVisible(false);
 			System.exit(0);
 		}
@@ -182,8 +186,9 @@ class ClientFrame extends Frame {
 						ClientFrame.this.tank0.setRole(false);
 					}
 					
+					ClientFrame.this.teamStatistics(role.equals("a"), 1);
 					ClientFrame.this.clientNetAgent.connect(IP, port);
-					ClientFrame.this.tank0.setXY(INITIAL_TANK_X_LOC, INITIAL_TANK_Y_LOC * ClientFrame.this.tank0.id, 0, 0);
+					ClientFrame.this.tank0.setLocationDirection(0, 0);
 					ClientFrame.this.paintThread.start();
 				}
 			});
@@ -212,6 +217,15 @@ class ClientFrame extends Frame {
 			return true;
 		}
 		return false;
+	}
+	
+	public void teamStatistics(boolean role, int wave) {
+		if(role) {
+			teamACount += wave;
+		}
+		else {
+			teamBCount += wave;
+		}
 	}
 }
 

@@ -4,6 +4,7 @@ import java.net.*;
 
 public class TankClientNetAgent {
 	
+	public String serverIp;
 	private static int UDP_PORT = 2229;
 	private ClientFrame clientFrame;
 	
@@ -18,6 +19,7 @@ public class TankClientNetAgent {
 	
 	public void connect(String IP, int PORT) {		
 		
+		this.serverIp = IP;
 		//If set InetAddress.getLocalHost() here, Package cannot be received. 
 		try {
 			datagramSocket = new DatagramSocket(TankClientNetAgent.UDP_PORT);
@@ -92,13 +94,14 @@ String printID = "Client#" + clientFrame.tank0.id + ": ";
 						TankByHuman newTankByHumanOnline = msg.tank;
 						
 						clientFrame.tanksByHumanOnline.put(newTankByHumanOnline.id, newTankByHumanOnline);
+						clientFrame.teamStatistics(newTankByHumanOnline.role, 1);
 						
 						if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE) {
 							/* Every time the client received a newTank message from server, which means the client should add the new tank to the frame
 							 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
 							 * client by server.
 							 * */	
-							newTankByHumanOnline.setXY(ClientFrame.INITIAL_TANK_X_LOC, ClientFrame.INITIAL_TANK_Y_LOC * newTankByHumanOnline.id, 0, 0);
+							newTankByHumanOnline.setLocationDirection(0, 0);
 System.out.println(printID + "A packet received from Tank Server to Add a new Tank from Client#" + newTankByHumanOnline.id);
 							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_ALREADYMESSAGE);
 							send(msgAlready);
@@ -118,7 +121,7 @@ System.out.println(printID + "A packet received from Tank Server to Add an old T
 						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
 System.out.println(printID + " keyPressedEventCode Received------" + msg.tank.keyPressedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyPressed(msg.tank.keyPressedCode);
-						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y, msg.tank.xDir, msg.tank.yDir);
+						newTankByHumanOnline.setLocationDirection(msg.tank.xDir, msg.tank.yDir);
 						
 					} else if(messageInfo.messageType == TankMessage.TANK_KEYRELEASEDMESSAGE) {
 						msg = new TankKeyEventMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
@@ -127,6 +130,16 @@ System.out.println(printID + " keyPressedEventCode Received------" + msg.tank.ke
 System.out.println(printID + " keyReleasedEventCode Received------" + msg.tank.keyReleasedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyReleased(msg.tank.keyReleasedCode);
 
+					} else if(messageInfo.messageType == TankMessage.TANK_QUITMESSAGE) {
+System.out.println(printID + "A packet received from Tank Server to Remove an old Tank of Client#" + messageInfo.idReceived);
+
+						if(clientFrame.tanksByHumanOnline.containsKey(messageInfo.idReceived)) {
+							clientFrame.teamStatistics(clientFrame.tanksByHumanOnline.get(messageInfo.idReceived).role, -1);
+							clientFrame.tanksByHumanOnline.remove(messageInfo.idReceived);
+System.out.println(printID + "The Tank has been removed. Client#" + messageInfo.idReceived);
+						} else {
+System.out.println(printID + "Error removing the tank that doesn't exist. Client#" + messageInfo.idReceived);	
+						}
 					}
 				}
 			} catch (SocketException | UnknownHostException e) {
@@ -140,7 +153,7 @@ System.out.println(printID + " keyReleasedEventCode Received------" + msg.tank.k
 	}
 	
 	public void send(TankMessage msg) {
-		msg.send(datagramSocket, "127.0.0.1", TankServer.UDP_PORT);
+		msg.send(datagramSocket, this.serverIp, TankServer.UDP_PORT);
 	}
 
 	/**

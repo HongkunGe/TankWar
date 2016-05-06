@@ -20,7 +20,7 @@ public abstract class TankMessage {
 	public static final int TANK_ALREADYMESSAGE = 2;
 	public static final int TANK_KEYPRESSEDMESSAGE = 3;
 	public static final int TANK_KEYRELEASEDMESSAGE = 4;
-	public static final int TANK_EVENTMESSAGE = 5;
+	public static final int TANK_QUITMESSAGE = 5;
 	
 	TankByHuman tank;
 	int messageType;
@@ -42,10 +42,10 @@ public abstract class TankMessage {
 		
 		try {
 			dp = new DatagramPacket(sentTankData, sentTankData.length,
-			        new InetSocketAddress(InetAddress.getLocalHost(), TankServer.UDP_PORT));
+			        new InetSocketAddress(IP, TankServer.UDP_PORT));
 			
 			datagramSocket.send(dp);
-System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.getUDP_PORT() + " A packet sent to server");
+System.out.println("Client#" +  + tank.id + " :From Port " + TankClientNetAgent.getUDP_PORT() + ", A packet sent to server");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (SocketException e) {
@@ -94,6 +94,9 @@ System.out.println("Client#" +  + tank.id + " From Port: " + TankClientNetAgent.
 			break;
 		case TANK_KEYRELEASEDMESSAGE:
 			printtedType =  "TANK_KEYRELEASEDDMESSAGE";
+			break;
+		case TANK_QUITMESSAGE:
+			printtedType =  "TANK_QUITMESSAGE";
 			break;
 		}
 		return printtedType.toLowerCase();

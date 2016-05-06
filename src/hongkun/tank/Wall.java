@@ -8,6 +8,8 @@ import java.util.Iterator;
 public class Wall {
 	
 	public static int WALL_SIZE = 30;
+	private static int LEFT_WALL = 80;
+	private static int RIGHT_WALL = 700;
 	Color c = Color.getHSBColor(35, (float) 0.84, (float) 0.38); // BROWN
 	ArrayList<Position> branketCollection = new ArrayList<Position>();
 	
@@ -15,9 +17,22 @@ public class Wall {
 	public Wall(ClientFrame clientFrame) {
 		this.clientFrame = clientFrame;
 		
-		int[][] indexes = {{90, 90}, {90,120}, {90,150}, {90,180}, {90,210}, {90,240}, {90,270}, {90,300}, {90,330}, {90,360}, {90,390}, {90,420}};
-		for(int i = 0; i < indexes.length; i++) {
-			branketCollection.add(new Position(indexes[i][0], indexes[i][1]));
+		buildWall();
+	}
+	
+	private void buildWall() {
+		for(int yAxis = 90; yAxis <= 520; yAxis += 46) {
+			branketCollection.add(new Position(Wall.LEFT_WALL, yAxis));
+		}
+		
+		for(int yAxis = 90; yAxis <= 520; yAxis += 46) {
+			branketCollection.add(new Position(Wall.RIGHT_WALL, yAxis));
+		}
+		
+		for(int yAxis = 90; yAxis <= 500; yAxis += 80) {
+			for(int xAxis = 150; xAxis <= 630; xAxis += 30) {
+				branketCollection.add(new Position(xAxis, yAxis));
+			}
 		}
 	}
 	

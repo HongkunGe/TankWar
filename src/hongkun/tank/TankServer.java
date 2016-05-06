@@ -38,12 +38,12 @@ System.out.println("UDP Thread start in Client on port " + TankServer.UDP_PORT);
 					 */
 					ds.receive(dpToAddNewClients);
 					MessageInfo messageInfo = TankMessage.decodeMessageTop(buf);
-					int newlyAddedClientID = messageInfo.idReceived;
-System.out.println("A packet received from Tank Client#" + newlyAddedClientID + " message type: " + TankMessage.printMessageType(messageInfo.messageType));
+					int newlyReceivedClientID = messageInfo.idReceived;
+System.out.println("A packet received from Tank Client#" + newlyReceivedClientID + " message type: " + TankMessage.printMessageType(messageInfo.messageType));
 					
 
 					for(HashMap.Entry<Integer,TankServer.Client> client: clients.entrySet()) {
-						if(newlyAddedClientID != client.getKey()) {
+						if(newlyReceivedClientID != client.getKey()) {
 							
 							/*
 							 * messageInfo.messageType == TankMessage.TANK_NEWMESSAGE || 
@@ -64,11 +64,17 @@ System.out.println("A packet sent to Tank Client#" + client.getKey() + " message
 System.out.println("A packet received from Tank Client#" + m1.idReceived + " message type: " + TankMessage.printMessageType(m1.messageType));
 								
 								// Notify newly added clients about the info of old clients.
-								Client newClient = clients.get(newlyAddedClientID);
+								Client newClient = clients.get(newlyReceivedClientID);
 								dpToAddOldClients.setSocketAddress(new InetSocketAddress(newClient.getIPAdress(), newClient.getPort()));
 								ds.send(dpToAddOldClients);
 							} 
 						}
+					}
+					
+					// remove the pair of client if message is TANK_QUITMESSAGE
+					if(messageInfo.messageType == TankMessage.TANK_QUITMESSAGE && clients.containsKey(newlyReceivedClientID)) {
+						clients.remove(newlyReceivedClientID);
+						System.out.println("Server removed the records of Client#" + newlyReceivedClientID);
 					}
 				}
 			} catch (SocketException | UnknownHostException e) {

@@ -7,6 +7,10 @@ public class TankByHuman extends Tank{
 	
 	public int keyPressedCode = 0;
 	public int keyReleasedCode = 0;
+	
+	/*
+	 * Control keys to manage the behavior of press and release. 
+	 * */
 	private boolean afterRelease = true;
 	private boolean isValidKey = true;
 	
@@ -72,7 +76,6 @@ public class TankByHuman extends Tank{
 		} else if(keyPressedCode == KeyEvent.VK_F2){
 			// restart
 			if(!this.isLive()) {
-//				this.isLive = true;
 				this.life = 100;
 			}
 			return false;
@@ -132,9 +135,14 @@ public class TankByHuman extends Tank{
 		}
 	}
 
-	public void setXY(int x, int y, int xDir, int yDir) {
-		this.x = x;
-		this.y = y;
+	public void setLocationDirection(int xDir, int yDir) {
+		if(this.role) {
+			this.x = ClientFrame.INITIAL_TANK_X_LEFT_LOC;
+			this.y = this.id * ClientFrame.INITIAL_TANK_Y_LOC;
+		} else {
+			this.x = ClientFrame.INITIAL_TANK_X_RIGHT_LOC;
+			this.y = this.id * ClientFrame.INITIAL_TANK_Y_LOC;
+		}
 		this.xDir = xDir;
 		this.yDir = yDir;
 	}

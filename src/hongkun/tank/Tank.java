@@ -9,6 +9,11 @@ public class Tank extends ObjectInTankWar{
 	public static final int TANK_WIDTH = 30;
 	public static final int TANK_HEIGHT = 30;
 	public static final int WHOLE_LIFE = 100;
+	
+	public static final Color DEAD_COLOR = Color.BLACK;
+	public static final Color TEAM_A_COLOR = Color.RED;
+	public static final Color TEAM_B_COLOR = Color.BLUE;
+	
 	int id = 0;
 	boolean role;
 	int life, wholeLife = WHOLE_LIFE;
@@ -23,7 +28,8 @@ public class Tank extends ObjectInTankWar{
 		
 		// Used to restore the front-color
 		Color cOriginal = g.getColor();
-		g.setColor(c);
+		
+		tankColorAutoSet(g);
 		
 		// Draw the tank
 		g.fillOval(x, y, TANK_WIDTH, TANK_HEIGHT);
@@ -38,6 +44,31 @@ public class Tank extends ObjectInTankWar{
 		g.drawString(Integer.toString(this.id), x + TANK_WIDTH / 2, y + TANK_HEIGHT / 2);
 		g.setColor(cOriginal);
 		
+		// Only if this tank is alive, the behavior can be showed.
+		if(this.life > 0) {
+			tankBehaviors(g);
+		} else {
+			tankIsDead(g);
+		}
+	}
+	
+	private void tankIsDead(Graphics g) {
+		Color cOriginal = g.getColor();
+		g.setColor(DEAD_COLOR);
+		// Draw the dead tank
+		g.fillOval(x, y, TANK_WIDTH, TANK_HEIGHT);
+		g.setColor(cOriginal);
+	}
+	
+	public void tankColorAutoSet(Graphics g) {
+		if(this.role) {
+			g.setColor(TEAM_A_COLOR);
+		} else {
+			g.setColor(TEAM_B_COLOR);
+		}
+	}
+	
+	private void tankBehaviors(Graphics g) {
 		x += xDir;
 		y += yDir;
 			
@@ -103,9 +134,9 @@ public class Tank extends ObjectInTankWar{
 	public void isHitByMissle(Missle firedMissle) {
 		this.clientFrame.explosionEvents.add(new Explosion(firedMissle.x, firedMissle.y, this.clientFrame));
 		this.life -= Missle.LIFE_MINUS_PER_HIT;
-//		if(this.life <= 0) {
-//			this.isLive = false;
-//		}
+		if(this.life <= 0) {
+			this.clientFrame.teamStatistics(role, -1);
+		}
 	}
 	
 	public boolean isRamByTeamTank() {
