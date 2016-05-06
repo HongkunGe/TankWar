@@ -22,7 +22,7 @@ class ClientFrame extends Frame {
 	public static final int INITIAL_TANK_X_LOC = 200;
 	public static final int INITIAL_TANK_Y_LOC = 60;
 	
-	public TankByHuman tank0 = new TankByHuman(-100, -100, 30, 30, true, Color.RED, 100, this);;
+	public TankByHuman tank0 = new TankByHuman(-100, -100, 30, 30, false, Color.RED, 100, this);;
 	public HashMap<Integer, TankByHuman> tanksByHumanOnline = new HashMap<Integer, TankByHuman>();
 	public ArrayList<Explosion> explosionEvents = new ArrayList<Explosion>();
 	public ArrayList<TankByRobot> tankByRobots = new ArrayList<TankByRobot>();
@@ -66,25 +66,32 @@ class ClientFrame extends Frame {
 		for(Iterator<HashMap.Entry<Integer, TankByHuman>> it = tanksByHumanOnline.entrySet().iterator(); it.hasNext();) {
 			HashMap.Entry<Integer, TankByHuman> tankByHumanOnline = it.next();
 			TankByHuman t = tankByHumanOnline.getValue();
-			t.draw(g);
-			if(!t.isLive()) {
-				it.remove();
+			
+			if(t.isLive()) {
+				t.draw(g);
 			}
 		}
 		
 		for(Iterator<TankByRobot> itEt = tankByRobots.iterator(); itEt.hasNext();) {
 			TankByRobot et = itEt.next();
-			et.draw(g);
-			if(!et.isLive()) {
-				itEt.remove();
+			
+			if(et.isLive()) {
+				et.draw(g);
 			}
 		}
 		
 		Color cOriginal = g.getColor();
 		g.setColor(Color.BLACK);
-		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
-		g.drawString("Player Count: " + tanksByHumanOnline.size(), 10, 60);
-		g.drawString("Tank Life: " + tank0.life, 10, 80);
+//		g.drawString("Explosion Count: " + explosionEvents.size(), 10, 40);
+		g.drawString("Player Count: " + tanksByHumanOnline.size(), 10, 40);
+		g.drawString("#" + this.tank0.id + " Tank Life: " + tank0.life, 10, 60);
+		
+		g.drawString("----------------", 10, 80);
+		int count = 1; 
+		for(HashMap.Entry<Integer, TankByHuman> tankByHuman: this.tanksByHumanOnline.entrySet()) {
+			g.drawString("#" + tankByHuman.getKey() + " Tank Life: " + tankByHuman.getValue().life, 10, 80 + 20 * count);
+			count ++;
+		}
 		g.setColor(cOriginal);
 		
 		for(Iterator<Explosion> it = explosionEvents.iterator(); it.hasNext();) {
@@ -136,6 +143,7 @@ class ClientFrame extends Frame {
 		TextField tfIP = new TextField("127.0.0.1", 12);
 		TextField tfTCPPort = new TextField("" + TankServer.TCP_PORT, 4);
 		TextField tfUDPPort = new TextField("2226", 4);
+		TextField tfRole = new TextField("A", 1);
 		public ConnectDialog() {
 			super(ClientFrame.this, true);			
 			
@@ -149,6 +157,8 @@ class ClientFrame extends Frame {
 			this.add(new Label("UDP Port:"));
 			this.add(tfUDPPort);
 			
+			this.add(new Label("Team(A or B):"));
+			this.add(tfRole);
 			this.add(button);
 			this.setLocation(DIALOG_X_LOC, DIALOG_Y_LOC);
 			
@@ -164,6 +174,13 @@ class ClientFrame extends Frame {
 					TankClientNetAgent.setUDP_PORT(UDPport);
 					
 					setVisible(false);
+					
+					String role = ConnectDialog.this.tfRole.getText().trim().toLowerCase();
+					if(role.equals("a")) {
+						ClientFrame.this.tank0.setRole(true);
+					} else {
+						ClientFrame.this.tank0.setRole(false);
+					}
 					
 					ClientFrame.this.clientNetAgent.connect(IP, port);
 					ClientFrame.this.tank0.setXY(INITIAL_TANK_X_LOC, INITIAL_TANK_Y_LOC * ClientFrame.this.tank0.id, 0, 0);

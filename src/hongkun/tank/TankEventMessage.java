@@ -19,6 +19,9 @@ public class TankEventMessage extends TankMessage {
 		dos.writeInt(messageType);
 		dos.writeInt(tank.x);
 		dos.writeInt(tank.y);
+		dos.writeInt(tank.life);
+		dos.writeBoolean(tank.role);
+		dos.writeBoolean(tank.isLive);	
 	}
 
 	@Override
@@ -27,6 +30,9 @@ public class TankEventMessage extends TankMessage {
 		messageType = dis.readInt();
 		tank.x = dis.readInt();
 		tank.y = dis.readInt();
+		tank.life = dis.readInt();
+		tank.role = dis.readBoolean();
+		tank.isLive = dis.readBoolean();
 	}
 
 }

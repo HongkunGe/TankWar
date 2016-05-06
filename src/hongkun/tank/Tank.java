@@ -62,20 +62,41 @@ public class Tank extends ObjectInTankWar{
 			}
 			
 			// hit tanks
-			if(this.role) {
-				for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
-					TankByRobot et = itEt.next();
-					if(firedMissle.hitTank(et) && et.isLive()) {
-						et.isHitByMissle(firedMissle);
+			for(HashMap.Entry<Integer, TankByHuman> tankByHuman: this.clientFrame.tanksByHumanOnline.entrySet()) {
+				// the tank will not hit itself or the teammate.
+				TankByHuman tankByHumanOnlineForHit = tankByHuman.getValue();
+				if(tankByHuman.getKey() != this.id && tankByHumanOnlineForHit.role != this.role) {
+					if(firedMissle.hitTank(tankByHumanOnlineForHit) && tankByHumanOnlineForHit.isLive()) {
+						tankByHumanOnlineForHit.isHitByMissle(firedMissle);
 						it.remove();
 					}
 				}
-			} else {
-				if(firedMissle.hitTank(clientFrame.tank0) && clientFrame.tank0.isLive()) {
-					clientFrame.tank0.isHitByMissle(firedMissle);
-					it.remove();
+			}
+			
+			// this tank is the one in tanksByHumanOnline, it may hit the host tank
+			if(this.clientFrame.tanksByHumanOnline.containsKey(this.id)) {
+				if(this.role != clientFrame.tank0.role) {
+					if(firedMissle.hitTank(clientFrame.tank0) && clientFrame.tank0.isLive()) {
+						clientFrame.tank0.isHitByMissle(firedMissle);
+						it.remove();
+					}
 				}
 			}
+//			
+//			if(this.role) {
+//				for(Iterator<TankByRobot> itEt = clientFrame.tankByRobots.iterator(); itEt.hasNext();) {
+//					TankByRobot et = itEt.next();
+//					if(firedMissle.hitTank(et) && et.isLive()) {
+//						et.isHitByMissle(firedMissle);
+//						it.remove();
+//					}
+//				}
+//			} else {
+//				if(firedMissle.hitTank(clientFrame.tank0) && clientFrame.tank0.isLive()) {
+//					clientFrame.tank0.isHitByMissle(firedMissle);
+//					it.remove();
+//				}
+//			}
 		}
 	}
 	
@@ -185,6 +206,13 @@ public class Tank extends ObjectInTankWar{
 	 */
 	public boolean isLive() {
 		return isLive;
+	}
+
+	/**
+	 * @param role the role to set
+	 */
+	public void setRole(boolean role) {
+		this.role = role;
 	}
 }
 

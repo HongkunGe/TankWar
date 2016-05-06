@@ -90,7 +90,7 @@ String printID = "Client#" + clientFrame.tank0.id + ": ";
 						msg = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_MESSAGE_DECODE);
 						msg.decode(dis);
 						TankByHuman newTankByHumanOnline = msg.tank;
-						newTankByHumanOnline.setXY(ClientFrame.INITIAL_TANK_X_LOC, ClientFrame.INITIAL_TANK_Y_LOC * newTankByHumanOnline.id, 0, 0);
+						
 						clientFrame.tanksByHumanOnline.put(newTankByHumanOnline.id, newTankByHumanOnline);
 						
 						if(messageInfo.messageType == TankMessage.TANK_NEWMESSAGE) {
@@ -98,6 +98,7 @@ String printID = "Client#" + clientFrame.tank0.id + ": ";
 							 * the client will send an "alreadyExist" message back to the server and then the message will be transfered to newly added
 							 * client by server.
 							 * */	
+							newTankByHumanOnline.setXY(ClientFrame.INITIAL_TANK_X_LOC, ClientFrame.INITIAL_TANK_Y_LOC * newTankByHumanOnline.id, 0, 0);
 System.out.println(printID + "A packet received from Tank Server to Add a new Tank from Client#" + newTankByHumanOnline.id);
 							TankNewMessage msgAlready = new TankNewMessage(clientFrame.tank0, TankMessage.TANK_ALREADYMESSAGE);
 							send(msgAlready);
@@ -125,8 +126,7 @@ System.out.println(printID + " keyPressedEventCode Received------" + msg.tank.ke
 						TankByHuman newTankByHumanOnline = clientFrame.tanksByHumanOnline.get(msg.tank.id);
 System.out.println(printID + " keyReleasedEventCode Received------" + msg.tank.keyReleasedCode + " from Client#" + msg.tank.id);
 						newTankByHumanOnline.onlineKeyReleased(msg.tank.keyReleasedCode);
-//						newTankByHumanOnline.setXY(msg.tank.x, msg.tank.y, msg.tank.xDir, msg.tank.yDir);
-						
+
 					}
 				}
 			} catch (SocketException | UnknownHostException e) {
