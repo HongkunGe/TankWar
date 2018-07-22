@@ -79,12 +79,12 @@ public class TankByHuman extends Tank{
 				this.life = 100;
 			}
 			return false;
-		} else if(keyPressedCode == KeyEvent.VK_NUMPAD5) {
+		} else if(keyPressedCode == KeyEvent.VK_SPACE) {
 //			superFire();
 			return false;
-		} else if(KeyEvent.VK_NUMPAD1 <= keyPressedCode && keyPressedCode <= KeyEvent.VK_NUMPAD9){
+		} else if(KeyEvent.VK_1 <= keyPressedCode && keyPressedCode <= KeyEvent.VK_9){
 			isFireMissle = true;
-			dir = DirectionGenerator.getDirection(keyPressedCode - KeyEvent.VK_NUMPAD1, MISSLE_STEP);
+			dir = DirectionGenerator.getDirection(keyPressedCode - KeyEvent.VK_1, MISSLE_STEP);
 		} else {
 			return false;
 		}

@@ -1,0 +1,3 @@
+Main-Class: hongkun.tank.TankClient
+Class-Path: .
+
